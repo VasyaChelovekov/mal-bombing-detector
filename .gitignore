@@ -133,3 +133,8 @@ Thumbs.db
 *.key
 secrets.yaml
 secrets.json
+
+# AI Instructions (local only)
+.github/instructions/
+.github/copilot-instructions.md
+copilot-instructions.md
