@@ -1,0 +1,187 @@
+{
+  "app": {
+    "name": "MAL Bombing Detector",
+    "version": "2.0.0",
+    "description": "Statistical analysis tool for detecting vote brigading on anime platforms"
+  },
+  "cli": {
+    "welcome": "MAL Bombing Detector v{version}",
+    "subtitle": "Vote brigading analysis on anime platforms",
+    "analyzing": "Analyzing {count} anime...",
+    "complete": "Analysis complete!",
+    "error": "Error: {message}",
+    "no_results": "No results found",
+    "saved_to": "Results saved to: {path}",
+    "loading_cache": "Loading cache: {count} anime cached",
+    "fetching_top": "Fetching top {count} anime ({pages} pages)...",
+    "collecting_stats": "Collecting statistics for {count} anime...",
+    "generating_charts": "Generating visualizations...",
+    "exporting": "Exporting results..."
+  },
+  "analysis": {
+    "start": "Starting distribution analysis...",
+    "complete": "Analysis complete. Found:",
+    "critical_count": "Critical: {count}",
+    "high_count": "High: {count}",
+    "medium_count": "Medium: {count}",
+    "low_count": "Low: {count}",
+    "summary_header": "SUMMARY",
+    "total_analyzed": "Total analyzed: {count} anime",
+    "average_score": "Average Suspicion Score: {score}",
+    "distribution_header": "Distribution by levels:",
+    "top_header": "TOP {count} ANIME WITH HIGHEST BOMBING SUSPICION"
+  },
+  "levels": {
+    "critical": "CRITICAL",
+    "high": "HIGH",
+    "medium": "MEDIUM",
+    "low": "LOW"
+  },
+  "severity": {
+    "extreme": {
+      "name": "extreme",
+      "description": "Statistically significant anomaly. High probability of organized attack."
+    },
+    "severe": {
+      "name": "severe",
+      "description": "Significant deviation from norm. Likely coordinated bombing."
+    },
+    "moderate": {
+      "name": "moderate",
+      "description": "Notable deviation. Could be attack or natural polarization."
+    },
+    "light": {
+      "name": "light",
+      "description": "Minor deviation within natural variation."
+    },
+    "none": {
+      "name": "none",
+      "description": "Distribution matches expected pattern."
+    }
+  },
+  "metrics": {
+    "ones_zscore": "Ones Z-Score",
+    "spike_ratio": "Spike Ratio",
+    "distribution_effect": "Distribution Effect",
+    "bimodality": "Bimodality",
+    "entropy_deficit": "Entropy Deficit",
+    "bombing_score": "Bombing Score",
+    "ones_percentage": "Ones %",
+    "tens_percentage": "Tens %"
+  },
+  "flags": {
+    "EXTREME_ONES_ANOMALY": "Extreme ones anomaly (p < 0.01)",
+    "SIGNIFICANT_ONES_ANOMALY": "Significant ones anomaly (p < 0.05)",
+    "EXTREME_SPIKE_PATTERN": "Extreme spike pattern",
+    "ELEVATED_SPIKE_PATTERN": "Elevated spike pattern",
+    "CONFIRMED_BIMODALITY": "Confirmed bimodality",
+    "POSSIBLE_BIMODALITY": "Possible bimodality",
+    "LARGE_DISTRIBUTION_EFFECT": "Large distribution effect",
+    "MEDIUM_DISTRIBUTION_EFFECT": "Medium distribution effect",
+    "LOW_ENTROPY_WARNING": "Low entropy warning"
+  },
+  "export": {
+    "excel": {
+      "main_sheet": "Bombing Analysis",
+      "severity_sheet": "Severity Details",
+      "summary_sheet": "Summary",
+      "headers": {
+        "rank": "Bombing Rank",
+        "mal_rank": "MAL Rank",
+        "title": "Title",
+        "score": "Score",
+        "votes": "Total Votes",
+        "ones_pct": "Ones %",
+        "tens_pct": "Tens %",
+        "bombing_score": "Bombing Score",
+        "level": "Level",
+        "flags": "Flags"
+      }
+    },
+    "csv": {
+      "generated": "CSV exported: {path}"
+    },
+    "sheets": {
+      "summary": "Summary",
+      "metrics": "Detailed Metrics",
+      "distribution": "Score Distribution",
+      "charts": "Charts"
+    },
+    "columns": {
+      "rank": "Rank",
+      "title": "Title",
+      "score": "Score",
+      "members": "Members",
+      "voters": "Voters",
+      "suspicion_score": "Suspicion Score",
+      "severity": "Severity",
+      "ones_percent": "Ones %",
+      "tens_percent": "Tens %"
+    },
+    "html": {
+      "title": "MAL Review Bombing Analysis Report",
+      "generated_at": "Generated at",
+      "summary": "Summary",
+      "results": "Analysis Results"
+    }
+  },
+  "charts": {
+    "comparison_title": "Top {count} Anime by Bombing Suspicion",
+    "heatmap_title": "Suspicion Metrics Heatmap",
+    "distribution_title": "Score Distribution: {title}",
+    "correlation_title": "Metrics Correlation Matrix",
+    "scatter_title": "Score vs Ones Percentage",
+    "xlabel_score": "MAL Score",
+    "ylabel_ones": "Ones Percentage (%)",
+    "xlabel_bombing": "Bombing Score",
+    "legend_actual": "Actual",
+    "legend_expected": "Expected",
+    "severity_distribution": {
+      "title": "Severity Distribution"
+    },
+    "suspicion_scores": {
+      "title": "Top 20 Suspicious Anime",
+      "xlabel": "Suspicion Score"
+    },
+    "distribution_comparison": {
+      "title": "Score Distribution Comparison"
+    },
+    "metrics_correlation": {
+      "title": "Metrics Correlation Heatmap"
+    },
+    "ones_vs_score": {
+      "title": "1-Votes Percentage vs MAL Score"
+    },
+    "suspicion_heatmap": {
+      "title": "Suspicion Score Heatmap by Rank"
+    }
+  },
+  "errors": {
+    "config_not_found": "Configuration file not found: {path}",
+    "invalid_config": "Invalid configuration: {message}",
+    "scraping_failed": "Failed to fetch data: {message}",
+    "parse_error": "Failed to parse response: {message}",
+    "cache_error": "Cache error: {message}",
+    "export_error": "Export failed: {message}",
+    "no_data": "No data available for analysis",
+    "invalid_id": "Invalid anime ID: {id}",
+    "platform_not_supported": "Platform not supported: {platform}",
+    "rate_limited": "Rate limited. Waiting {seconds} seconds..."
+  },
+  "help": {
+    "analyze": "Analyze top N anime for review bombing",
+    "single": "Deep-dive analysis of a single anime",
+    "compare": "Compare bombing metrics between anime",
+    "batch": "Batch analysis from CSV file",
+    "serve": "Start REST API server",
+    "platform": "Platform to analyze (mal, anilist, kitsu)",
+    "limit": "Number of anime to analyze",
+    "output": "Output directory for results",
+    "format": "Export format (excel, csv, json, html)",
+    "config": "Path to configuration file",
+    "verbose": "Enable verbose output",
+    "no_cache": "Disable cache",
+    "no_charts": "Disable chart generation"
+  }
+}
+

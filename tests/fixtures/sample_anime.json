@@ -1,0 +1,50 @@
+{
+  "12345": {
+    "mal_id": 12345,
+    "title": "Test Anime",
+    "english_title": "Test Anime English",
+    "score": 8.5,
+    "members": 500000,
+    "voters": 250000,
+    "rank": 50,
+    "episodes": 24,
+    "anime_type": "TV",
+    "status": "Finished Airing",
+    "score_distribution": {
+      "1": 500,
+      "2": 300,
+      "3": 500,
+      "4": 1000,
+      "5": 2500,
+      "6": 10000,
+      "7": 35000,
+      "8": 80000,
+      "9": 75000,
+      "10": 45200
+    }
+  },
+  "67890": {
+    "mal_id": 67890,
+    "title": "Bombed Anime",
+    "english_title": null,
+    "score": 7.2,
+    "members": 100000,
+    "voters": 50000,
+    "rank": 500,
+    "episodes": 12,
+    "anime_type": "TV",
+    "status": "Finished Airing",
+    "score_distribution": {
+      "1": 15000,
+      "2": 500,
+      "3": 500,
+      "4": 500,
+      "5": 1000,
+      "6": 2000,
+      "7": 5000,
+      "8": 10000,
+      "9": 10000,
+      "10": 5500
+    }
+  }
+}

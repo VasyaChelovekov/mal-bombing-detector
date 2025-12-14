@@ -1,0 +1,187 @@
+{
+  "app": {
+    "name": "MAL Bombing Detector",
+    "version": "2.0.0",
+    "description": "Инструмент статистического анализа для обнаружения vote brigading на аниме платформах"
+  },
+  "cli": {
+    "welcome": "MAL Bombing Detector v{version}",
+    "subtitle": "Анализ vote brigading на аниме платформах",
+    "analyzing": "Анализ {count} аниме...",
+    "complete": "Анализ завершён!",
+    "error": "Ошибка: {message}",
+    "no_results": "Результаты не найдены",
+    "saved_to": "Результаты сохранены: {path}",
+    "loading_cache": "Кэш загружен: {count} аниме",
+    "fetching_top": "Загрузка топ-{count} аниме ({pages} страниц)...",
+    "collecting_stats": "Сбор статистики для {count} аниме...",
+    "generating_charts": "Генерация визуализаций...",
+    "exporting": "Экспорт результатов..."
+  },
+  "analysis": {
+    "start": "Начало анализа распределения оценок...",
+    "complete": "Анализ завершён. Обнаружено:",
+    "critical_count": "Critical: {count}",
+    "high_count": "High: {count}",
+    "medium_count": "Medium: {count}",
+    "low_count": "Low: {count}",
+    "summary_header": "СВОДКА",
+    "total_analyzed": "Всего проанализировано: {count} аниме",
+    "average_score": "Средний Suspicion Score: {score}",
+    "distribution_header": "Распределение по уровням:",
+    "top_header": "ТОП-{count} АНИМЕ С НАИБОЛЬШИМ ПОДОЗРЕНИЕМ НА REVIEW BOMBING"
+  },
+  "levels": {
+    "critical": "КРИТИЧЕСКИЙ",
+    "high": "ВЫСОКИЙ",
+    "medium": "СРЕДНИЙ",
+    "low": "НИЗКИЙ"
+  },
+  "severity": {
+    "extreme": {
+      "name": "экстремальное",
+      "description": "Статистически значимая аномалия. Высокая вероятность организованной атаки."
+    },
+    "severe": {
+      "name": "тяжёлое",
+      "description": "Значительное отклонение от нормы. Вероятен координированный bombing."
+    },
+    "moderate": {
+      "name": "умеренное",
+      "description": "Заметное отклонение. Возможна как атака, так и естественная поляризация."
+    },
+    "light": {
+      "name": "лёгкое",
+      "description": "Небольшое отклонение в пределах естественной вариации."
+    },
+    "none": {
+      "name": "отсутствует",
+      "description": "Распределение соответствует ожидаемому."
+    }
+  },
+  "metrics": {
+    "ones_zscore": "Z-Score единиц",
+    "spike_ratio": "Spike Ratio",
+    "distribution_effect": "Effect Size распределения",
+    "bimodality": "Бимодальность",
+    "entropy_deficit": "Дефицит энтропии",
+    "bombing_score": "Bombing Score",
+    "ones_percentage": "% единиц",
+    "tens_percentage": "% десяток"
+  },
+  "flags": {
+    "EXTREME_ONES_ANOMALY": "Экстремальная аномалия единиц (p < 0.01)",
+    "SIGNIFICANT_ONES_ANOMALY": "Значимая аномалия единиц (p < 0.05)",
+    "EXTREME_SPIKE_PATTERN": "Экстремальный spike паттерн",
+    "ELEVATED_SPIKE_PATTERN": "Повышенный spike паттерн",
+    "CONFIRMED_BIMODALITY": "Подтверждённая бимодальность",
+    "POSSIBLE_BIMODALITY": "Возможная бимодальность",
+    "LARGE_DISTRIBUTION_EFFECT": "Большой эффект распределения",
+    "MEDIUM_DISTRIBUTION_EFFECT": "Средний эффект распределения",
+    "LOW_ENTROPY_WARNING": "Предупреждение о низкой энтропии"
+  },
+  "export": {
+    "excel": {
+      "main_sheet": "Анализ Bombing",
+      "severity_sheet": "Детали тяжести",
+      "summary_sheet": "Сводка",
+      "headers": {
+        "rank": "Ранг Bombing",
+        "mal_rank": "Ранг MAL",
+        "title": "Название",
+        "score": "Оценка",
+        "votes": "Всего голосов",
+        "ones_pct": "% единиц",
+        "tens_pct": "% десяток",
+        "bombing_score": "Bombing Score",
+        "level": "Уровень",
+        "flags": "Флаги"
+      }
+    },
+    "csv": {
+      "generated": "CSV экспортирован: {path}"
+    },
+    "sheets": {
+      "summary": "Сводка",
+      "metrics": "Детальные метрики",
+      "distribution": "Распределение оценок",
+      "charts": "Графики"
+    },
+    "columns": {
+      "rank": "Ранг",
+      "title": "Название",
+      "score": "Оценка",
+      "members": "Участников",
+      "voters": "Голосов",
+      "suspicion_score": "Индекс подозрительности",
+      "severity": "Тяжесть",
+      "ones_percent": "% единиц",
+      "tens_percent": "% десяток"
+    },
+    "html": {
+      "title": "Отчёт анализа Review Bombing на MAL",
+      "generated_at": "Сгенерировано",
+      "summary": "Сводка",
+      "results": "Результаты анализа"
+    }
+  },
+  "charts": {
+    "comparison_title": "Топ-{count} аниме по подозрению на bombing",
+    "heatmap_title": "Тепловая карта метрик подозрительности",
+    "distribution_title": "Распределение оценок: {title}",
+    "correlation_title": "Корреляционная матрица метрик",
+    "scatter_title": "Оценка vs Процент единиц",
+    "xlabel_score": "Оценка MAL",
+    "ylabel_ones": "Процент единиц (%)",
+    "xlabel_bombing": "Bombing Score",
+    "legend_actual": "Фактическое",
+    "legend_expected": "Ожидаемое",
+    "severity_distribution": {
+      "title": "Распределение по тяжести"
+    },
+    "suspicion_scores": {
+      "title": "Топ-20 подозрительных аниме",
+      "xlabel": "Индекс подозрительности"
+    },
+    "distribution_comparison": {
+      "title": "Сравнение распределений оценок"
+    },
+    "metrics_correlation": {
+      "title": "Тепловая карта корреляции метрик"
+    },
+    "ones_vs_score": {
+      "title": "Процент единиц vs Оценка MAL"
+    },
+    "suspicion_heatmap": {
+      "title": "Тепловая карта индексов подозрительности по рангу"
+    }
+  },
+  "errors": {
+    "config_not_found": "Файл конфигурации не найден: {path}",
+    "invalid_config": "Неверная конфигурация: {message}",
+    "scraping_failed": "Не удалось получить данные: {message}",
+    "parse_error": "Ошибка парсинга ответа: {message}",
+    "cache_error": "Ошибка кэша: {message}",
+    "export_error": "Ошибка экспорта: {message}",
+    "no_data": "Нет данных для анализа",
+    "invalid_id": "Неверный ID аниме: {id}",
+    "platform_not_supported": "Платформа не поддерживается: {platform}",
+    "rate_limited": "Rate limit. Ожидание {seconds} секунд..."
+  },
+  "help": {
+    "analyze": "Анализ топ N аниме на review bombing",
+    "single": "Глубокий анализ одного аниме",
+    "compare": "Сравнение метрик bombing между аниме",
+    "batch": "Пакетный анализ из CSV файла",
+    "serve": "Запуск REST API сервера",
+    "platform": "Платформа для анализа (mal, anilist, kitsu)",
+    "limit": "Количество аниме для анализа",
+    "output": "Директория для результатов",
+    "format": "Формат экспорта (excel, csv, json, html)",
+    "config": "Путь к файлу конфигурации",
+    "verbose": "Подробный вывод",
+    "no_cache": "Отключить кэш",
+    "no_charts": "Отключить генерацию графиков"
+  }
+}
+

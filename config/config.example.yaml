@@ -1,0 +1,230 @@
+# MAL Review Bombing Analyzer Configuration
+# Copy this file to config.yaml and customize as needed
+
+# General settings
+general:
+  language: en  # en, ru
+  log_level: INFO  # DEBUG, INFO, WARNING, ERROR
+  timezone: UTC
+
+# Platform configuration
+platforms:
+  default: myanimelist
+  
+  myanimelist:
+    base_url: "https://myanimelist.net"
+    api_url: "https://api.myanimelist.net/v2"
+    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    
+  anilist:
+    api_url: "https://graphql.anilist.co"
+    
+  kitsu:
+    api_url: "https://kitsu.io/api/edge"
+
+# Scraping settings
+scraping:
+  request_delay: 2.0  # seconds between requests
+  max_retries: 3
+  retry_delay: 5.0  # seconds
+  timeout: 30  # seconds
+  concurrent_requests: 1  # increase for async mode
+  respect_robots_txt: true
+
+# Cache settings
+cache:
+  enabled: true
+  directory: "data/cache"
+  expiry_hours: 24
+  max_entries: 1000
+  compression: false
+
+# Analysis configuration
+analysis:
+  min_votes_threshold: 1000  # minimum votes to analyze
+  
+  # Expected ones percentage by rating category
+  # Based on empirical analysis of 500+ anime with rating 8.5+
+  expected_ones_by_rating:
+    elite:      # 9.0+
+      mean: 0.4
+      std: 0.25
+      max_natural: 1.2
+    excellent:  # 8.5-9.0
+      mean: 0.7
+      std: 0.35
+      max_natural: 1.8
+    great:      # 8.0-8.5
+      mean: 1.2
+      std: 0.5
+      max_natural: 2.8
+    good:       # 7.5-8.0
+      mean: 2.0
+      std: 0.8
+      max_natural: 4.5
+    average:    # below 7.5
+      mean: 3.5
+      std: 1.2
+      max_natural: 7.0
+
+  # Metric weights (must sum to 1.0)
+  # Determined through correlation analysis with confirmed bombing cases
+  metric_weights:
+    ones_zscore: 0.35          # Z-score of ones percentage - high specificity
+    spike_anomaly: 0.20        # Ones/twos ratio - coordination marker
+    distribution_effect: 0.20  # Effect size of deviation - reliable indicator
+    bimodality: 0.15           # Bimodality coefficient - vote war marker
+    entropy_deficit: 0.10      # Entropy deficit - supplementary signal
+
+  # Suspicion level thresholds
+  suspicion_thresholds:
+    critical: 75
+    high: 55
+    medium: 35
+    low: 0
+
+  # Statistical significance thresholds
+  statistical_thresholds:
+    ones_zscore:
+      extreme: 3.0      # p < 0.01
+      significant: 2.0  # p < 0.05
+      notable: 1.65     # p < 0.10
+    spike_ratio:
+      extreme: 4.0
+      elevated: 2.5
+      normal_max: 2.0
+    effect_size:
+      large: 1.0
+      medium: 0.5
+      small: 0.2
+    bimodality:
+      confirmed: 0.4
+      possible: 0.3
+    entropy_deficit:
+      warning: 0.15
+      normal_max: 0.10
+
+  # Format adjustment factors (to reduce bias)
+  format_adjustments:
+    movie: 0.90
+    ova: 0.90
+    special: 0.90
+    sequel: 0.85
+    default: 1.0
+
+  # Age adjustment (for older anime)
+  age_adjustments:
+    old_threshold_years: 15
+    old_factor: 0.95
+    default: 1.0
+
+# Visualization settings
+visualization:
+  enabled: true
+  output_directory: "output/charts"
+  
+  # Chart settings
+  charts:
+    dpi: 150
+    figure_size: [12, 8]
+    style: "seaborn-v0_8-whitegrid"
+    color_palette: "husl"
+    
+  # Colors for suspicion levels
+  level_colors:
+    critical: "#d62728"
+    high: "#ff7f0e"
+    medium: "#ffbb33"
+    low: "#2ca02c"
+    
+  # Distribution chart colors
+  distribution_colors:
+    actual: "#3498db"
+    expected: "#e74c3c"
+    highlight: "#f39c12"
+
+# Export settings
+export:
+  output_directory: "output/reports"
+  
+  formats:
+    excel:
+      enabled: true
+      include_charts: true
+      include_severity_sheet: true
+    csv:
+      enabled: true
+      delimiter: ","
+      encoding: "utf-8"
+    json:
+      enabled: false
+      pretty_print: true
+      indent: 2
+    html:
+      enabled: false
+      template: "default"
+    markdown:
+      enabled: false
+
+# Logging configuration
+logging:
+  directory: "output/logs"
+  filename_pattern: "analysis_{date}.log"
+  max_file_size_mb: 10
+  backup_count: 5
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# CLI settings
+cli:
+  show_progress_bar: true
+  colored_output: true
+  default_limit: 50
+
+# API server settings (optional)
+api:
+  enabled: false
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["*"]
+  rate_limit: 100  # requests per minute
+
+# Metric profiles (presets)
+metric_profiles:
+  conservative:
+    description: "Lower sensitivity, fewer false positives"
+    weights:
+      ones_zscore: 0.45
+      spike_anomaly: 0.15
+      distribution_effect: 0.15
+      bimodality: 0.15
+      entropy_deficit: 0.10
+    thresholds:
+      critical: 80
+      high: 65
+      medium: 45
+      
+  balanced:
+    description: "Default balanced approach"
+    weights:
+      ones_zscore: 0.35
+      spike_anomaly: 0.20
+      distribution_effect: 0.20
+      bimodality: 0.15
+      entropy_deficit: 0.10
+    thresholds:
+      critical: 75
+      high: 55
+      medium: 35
+      
+  aggressive:
+    description: "Higher sensitivity, may have more false positives"
+    weights:
+      ones_zscore: 0.30
+      spike_anomaly: 0.25
+      distribution_effect: 0.20
+      bimodality: 0.15
+      entropy_deficit: 0.10
+    thresholds:
+      critical: 65
+      high: 45
+      medium: 25

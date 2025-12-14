@@ -1,0 +1,187 @@
+{
+  "app": {
+    "name": "MAL Bombing Detector",
+    "version": "2.0.0",
+    "description": "アニメプラットフォームでの評価操作を検出するための統計分析ツール"
+  },
+  "cli": {
+    "welcome": "MAL Bombing Detector v{version}",
+    "subtitle": "アニメプラットフォームでの評価操作分析",
+    "analyzing": "{count}件のアニメを分析中...",
+    "complete": "分析完了！",
+    "error": "エラー: {message}",
+    "no_results": "結果が見つかりません",
+    "saved_to": "結果を保存しました: {path}",
+    "loading_cache": "キャッシュ読み込み中: {count}件のアニメ",
+    "fetching_top": "トップ{count}アニメを取得中（{pages}ページ）...",
+    "collecting_stats": "{count}件のアニメの統計を収集中...",
+    "generating_charts": "可視化を生成中...",
+    "exporting": "結果をエクスポート中..."
+  },
+  "analysis": {
+    "start": "分布分析を開始中...",
+    "complete": "分析完了。検出結果:",
+    "critical_count": "危機的: {count}",
+    "high_count": "高: {count}",
+    "medium_count": "中: {count}",
+    "low_count": "低: {count}",
+    "summary_header": "概要",
+    "total_analyzed": "分析総数: {count}件のアニメ",
+    "average_score": "平均疑惑スコア: {score}",
+    "distribution_header": "レベル別分布:",
+    "top_header": "レビューボミング疑惑トップ{count}アニメ"
+  },
+  "levels": {
+    "critical": "危機的",
+    "high": "高",
+    "medium": "中",
+    "low": "低"
+  },
+  "severity": {
+    "extreme": {
+      "name": "極端",
+      "description": "統計的に有意な異常。組織的な攻撃の可能性が高い。"
+    },
+    "severe": {
+      "name": "深刻",
+      "description": "標準からの大幅な偏差。協調的なボミングの可能性あり。"
+    },
+    "moderate": {
+      "name": "中程度",
+      "description": "顕著な偏差。攻撃または自然な分極化の可能性。"
+    },
+    "light": {
+      "name": "軽微",
+      "description": "自然な変動範囲内の小さな偏差。"
+    },
+    "none": {
+      "name": "なし",
+      "description": "分布は予想されるパターンと一致。"
+    }
+  },
+  "metrics": {
+    "ones_zscore": "1点のZスコア",
+    "spike_ratio": "スパイク比率",
+    "distribution_effect": "分布効果",
+    "bimodality": "二峰性",
+    "entropy_deficit": "エントロピー不足",
+    "bombing_score": "ボミングスコア",
+    "ones_percentage": "1点の割合",
+    "tens_percentage": "10点の割合"
+  },
+  "flags": {
+    "EXTREME_ONES_ANOMALY": "極端な1点の異常 (p < 0.01)",
+    "SIGNIFICANT_ONES_ANOMALY": "有意な1点の異常 (p < 0.05)",
+    "EXTREME_SPIKE_PATTERN": "極端なスパイクパターン",
+    "ELEVATED_SPIKE_PATTERN": "高いスパイクパターン",
+    "CONFIRMED_BIMODALITY": "確認済みの二峰性",
+    "POSSIBLE_BIMODALITY": "二峰性の可能性",
+    "LARGE_DISTRIBUTION_EFFECT": "大きな分布効果",
+    "MEDIUM_DISTRIBUTION_EFFECT": "中程度の分布効果",
+    "LOW_ENTROPY_WARNING": "低エントロピー警告"
+  },
+  "export": {
+    "excel": {
+      "main_sheet": "ボミング分析",
+      "severity_sheet": "重大度の詳細",
+      "summary_sheet": "概要",
+      "headers": {
+        "rank": "ボミング順位",
+        "mal_rank": "MAL順位",
+        "title": "タイトル",
+        "score": "スコア",
+        "votes": "総投票数",
+        "ones_pct": "1点の割合",
+        "tens_pct": "10点の割合",
+        "bombing_score": "ボミングスコア",
+        "level": "レベル",
+        "flags": "フラグ"
+      }
+    },
+    "csv": {
+      "generated": "CSVエクスポート完了: {path}"
+    },
+    "sheets": {
+      "summary": "概要",
+      "metrics": "詳細メトリクス",
+      "distribution": "スコア分布",
+      "charts": "チャート"
+    },
+    "columns": {
+      "rank": "順位",
+      "title": "タイトル",
+      "score": "スコア",
+      "members": "メンバー数",
+      "voters": "投票者数",
+      "suspicion_score": "疑惑スコア",
+      "severity": "重大度",
+      "ones_percent": "1点の割合",
+      "tens_percent": "10点の割合"
+    },
+    "html": {
+      "title": "MALレビューボミング分析レポート",
+      "generated_at": "生成日時",
+      "summary": "概要",
+      "results": "分析結果"
+    }
+  },
+  "charts": {
+    "comparison_title": "ボミング疑惑トップ{count}アニメ",
+    "heatmap_title": "疑惑メトリクスのヒートマップ",
+    "distribution_title": "スコア分布: {title}",
+    "correlation_title": "メトリクス相関行列",
+    "scatter_title": "スコア vs 1点の割合",
+    "xlabel_score": "MALスコア",
+    "ylabel_ones": "1点の割合（%）",
+    "xlabel_bombing": "ボミングスコア",
+    "legend_actual": "実際",
+    "legend_expected": "期待値",
+    "severity_distribution": {
+      "title": "重大度分布"
+    },
+    "suspicion_scores": {
+      "title": "疑惑トップ20アニメ",
+      "xlabel": "疑惑スコア"
+    },
+    "distribution_comparison": {
+      "title": "スコア分布比較"
+    },
+    "metrics_correlation": {
+      "title": "メトリクス相関ヒートマップ"
+    },
+    "ones_vs_score": {
+      "title": "1点投票率 vs MALスコア"
+    },
+    "suspicion_heatmap": {
+      "title": "順位別疑惑スコアヒートマップ"
+    }
+  },
+  "errors": {
+    "config_not_found": "設定ファイルが見つかりません: {path}",
+    "invalid_config": "無効な設定: {message}",
+    "scraping_failed": "データの取得に失敗: {message}",
+    "parse_error": "レスポンスの解析に失敗: {message}",
+    "cache_error": "キャッシュエラー: {message}",
+    "export_error": "エクスポートに失敗: {message}",
+    "no_data": "分析可能なデータがありません",
+    "invalid_id": "無効なアニメID: {id}",
+    "platform_not_supported": "サポートされていないプラットフォーム: {platform}",
+    "rate_limited": "レート制限中。{seconds}秒待機中..."
+  },
+  "help": {
+    "analyze": "トップNアニメのレビューボミング分析",
+    "single": "単一アニメの詳細分析",
+    "compare": "アニメ間のボミングメトリクス比較",
+    "batch": "CSVファイルからのバッチ分析",
+    "serve": "REST APIサーバーを起動",
+    "platform": "分析対象プラットフォーム（mal, anilist, kitsu）",
+    "limit": "分析するアニメ数",
+    "output": "結果の出力ディレクトリ",
+    "format": "エクスポート形式（excel, csv, json, html）",
+    "config": "設定ファイルのパス",
+    "verbose": "詳細出力を有効化",
+    "no_cache": "キャッシュを無効化",
+    "no_charts": "チャート生成を無効化"
+  }
+}
+

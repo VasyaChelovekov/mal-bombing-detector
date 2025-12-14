@@ -1,0 +1,191 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mal-bombing-detector"
+version = "2.0.0"
+description = "Statistical analysis tool for detecting review bombing and vote brigading on anime platforms"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "VasyaChelovekov"}
+]
+maintainers = [
+    {name = "VasyaChelovekov"}
+]
+keywords = [
+    "myanimelist",
+    "anime",
+    "review-bombing",
+    "vote-brigading",
+    "statistical-analysis",
+    "data-analysis",
+    "web-scraping",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "aiohttp>=3.9.0",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.11.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.13.0",
+    "openpyxl>=3.1.0",
+    "pyyaml>=6.0.0",
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "tqdm>=4.66.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.5.0",
+    "pylint>=3.0.0",
+    "flake8>=6.1.0",
+    "pre-commit>=3.4.0",
+]
+api = [
+    "fastapi>=0.103.0",
+    "uvicorn>=0.23.0",
+]
+all = [
+    "mal-bombing-analyzer[dev]",
+    "mal-bombing-analyzer[api]",
+]
+
+[project.urls]
+Homepage = "https://github.com/username/mal-bombing-analyzer"
+Documentation = "https://github.com/username/mal-bombing-analyzer#readme"
+Repository = "https://github.com/username/mal-bombing-analyzer.git"
+Issues = "https://github.com/username/mal-bombing-analyzer/issues"
+Changelog = "https://github.com/username/mal-bombing-analyzer/blob/main/CHANGELOG.md"
+
+[project.scripts]
+mal-analyzer = "src.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.yaml", "*.yml"]
+
+[tool.black]
+line-length = 88
+target-version = ['py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | __pycache__
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+known_first_party = ["src"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+exclude = [
+    "tests/",
+    "build/",
+    "dist/",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "-ra",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+show_missing = true
+
+[tool.pylint.main]
+py-version = "3.10"
+ignore-paths = ["tests/", "build/", "dist/"]
+
+[tool.pylint.messages_control]
+disable = [
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring  
+    "C0116",  # missing-function-docstring
+    "R0903",  # too-few-public-methods
+    "R0913",  # too-many-arguments
+]
+
+[tool.pylint.format]
+max-line-length = 88

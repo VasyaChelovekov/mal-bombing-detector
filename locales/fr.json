@@ -1,0 +1,187 @@
+{
+  "app": {
+    "name": "MAL Bombing Detector",
+    "version": "2.0.0",
+    "description": "Outil d'analyse statistique pour détecter la manipulation de votes sur les plateformes d'anime"
+  },
+  "cli": {
+    "welcome": "MAL Bombing Detector v{version}",
+    "subtitle": "Analyse de manipulation de votes sur les plateformes d'anime",
+    "analyzing": "Analyse de {count} anime en cours...",
+    "complete": "Analyse terminée !",
+    "error": "Erreur : {message}",
+    "no_results": "Aucun résultat trouvé",
+    "saved_to": "Résultats enregistrés dans : {path}",
+    "loading_cache": "Chargement du cache : {count} anime en cache",
+    "fetching_top": "Récupération du top {count} anime ({pages} pages)...",
+    "collecting_stats": "Collecte des statistiques pour {count} anime...",
+    "generating_charts": "Génération des visualisations...",
+    "exporting": "Exportation des résultats..."
+  },
+  "analysis": {
+    "start": "Démarrage de l'analyse de distribution...",
+    "complete": "Analyse terminée. Trouvé :",
+    "critical_count": "Critique : {count}",
+    "high_count": "Élevé : {count}",
+    "medium_count": "Moyen : {count}",
+    "low_count": "Faible : {count}",
+    "summary_header": "RÉSUMÉ",
+    "total_analyzed": "Total analysé : {count} anime",
+    "average_score": "Score de suspicion moyen : {score}",
+    "distribution_header": "Distribution par niveaux :",
+    "top_header": "TOP {count} ANIME AVEC LA PLUS HAUTE SUSPICION DE BOMBING"
+  },
+  "levels": {
+    "critical": "CRITIQUE",
+    "high": "ÉLEVÉ",
+    "medium": "MOYEN",
+    "low": "FAIBLE"
+  },
+  "severity": {
+    "extreme": {
+      "name": "extrême",
+      "description": "Anomalie statistiquement significative. Haute probabilité d'attaque organisée."
+    },
+    "severe": {
+      "name": "sévère",
+      "description": "Écart significatif par rapport à la norme. Probablement un bombing coordonné."
+    },
+    "moderate": {
+      "name": "modéré",
+      "description": "Écart notable. Pourrait être une attaque ou une polarisation naturelle."
+    },
+    "light": {
+      "name": "léger",
+      "description": "Écart mineur dans la variation naturelle."
+    },
+    "none": {
+      "name": "aucun",
+      "description": "La distribution correspond au modèle attendu."
+    }
+  },
+  "metrics": {
+    "ones_zscore": "Z-Score des uns",
+    "spike_ratio": "Ratio de pic",
+    "distribution_effect": "Effet de distribution",
+    "bimodality": "Bimodalité",
+    "entropy_deficit": "Déficit d'entropie",
+    "bombing_score": "Score de bombing",
+    "ones_percentage": "% de uns",
+    "tens_percentage": "% de dix"
+  },
+  "flags": {
+    "EXTREME_ONES_ANOMALY": "Anomalie extrême des uns (p < 0.01)",
+    "SIGNIFICANT_ONES_ANOMALY": "Anomalie significative des uns (p < 0.05)",
+    "EXTREME_SPIKE_PATTERN": "Motif de pic extrême",
+    "ELEVATED_SPIKE_PATTERN": "Motif de pic élevé",
+    "CONFIRMED_BIMODALITY": "Bimodalité confirmée",
+    "POSSIBLE_BIMODALITY": "Bimodalité possible",
+    "LARGE_DISTRIBUTION_EFFECT": "Grand effet de distribution",
+    "MEDIUM_DISTRIBUTION_EFFECT": "Effet de distribution moyen",
+    "LOW_ENTROPY_WARNING": "Avertissement de faible entropie"
+  },
+  "export": {
+    "excel": {
+      "main_sheet": "Analyse de Bombing",
+      "severity_sheet": "Détails de Sévérité",
+      "summary_sheet": "Résumé",
+      "headers": {
+        "rank": "Rang de Bombing",
+        "mal_rank": "Rang MAL",
+        "title": "Titre",
+        "score": "Score",
+        "votes": "Total des votes",
+        "ones_pct": "% de uns",
+        "tens_pct": "% de dix",
+        "bombing_score": "Score de Bombing",
+        "level": "Niveau",
+        "flags": "Indicateurs"
+      }
+    },
+    "csv": {
+      "generated": "CSV exporté : {path}"
+    },
+    "sheets": {
+      "summary": "Résumé",
+      "metrics": "Métriques détaillées",
+      "distribution": "Distribution des scores",
+      "charts": "Graphiques"
+    },
+    "columns": {
+      "rank": "Rang",
+      "title": "Titre",
+      "score": "Score",
+      "members": "Membres",
+      "voters": "Votants",
+      "suspicion_score": "Score de suspicion",
+      "severity": "Sévérité",
+      "ones_percent": "% de uns",
+      "tens_percent": "% de dix"
+    },
+    "html": {
+      "title": "Rapport d'analyse de Review Bombing MAL",
+      "generated_at": "Généré le",
+      "summary": "Résumé",
+      "results": "Résultats d'analyse"
+    }
+  },
+  "charts": {
+    "comparison_title": "Top {count} anime par suspicion de bombing",
+    "heatmap_title": "Carte thermique des métriques de suspicion",
+    "distribution_title": "Distribution des scores : {title}",
+    "correlation_title": "Matrice de corrélation des métriques",
+    "scatter_title": "Score vs Pourcentage de uns",
+    "xlabel_score": "Score MAL",
+    "ylabel_ones": "Pourcentage de uns (%)",
+    "xlabel_bombing": "Score de Bombing",
+    "legend_actual": "Réel",
+    "legend_expected": "Attendu",
+    "severity_distribution": {
+      "title": "Distribution de sévérité"
+    },
+    "suspicion_scores": {
+      "title": "Top 20 anime suspects",
+      "xlabel": "Score de suspicion"
+    },
+    "distribution_comparison": {
+      "title": "Comparaison de distribution des scores"
+    },
+    "metrics_correlation": {
+      "title": "Carte thermique de corrélation des métriques"
+    },
+    "ones_vs_score": {
+      "title": "Pourcentage de votes 1 vs Score MAL"
+    },
+    "suspicion_heatmap": {
+      "title": "Carte thermique du score de suspicion par rang"
+    }
+  },
+  "errors": {
+    "config_not_found": "Fichier de configuration non trouvé : {path}",
+    "invalid_config": "Configuration invalide : {message}",
+    "scraping_failed": "Échec de récupération des données : {message}",
+    "parse_error": "Échec de l'analyse de la réponse : {message}",
+    "cache_error": "Erreur de cache : {message}",
+    "export_error": "Échec de l'exportation : {message}",
+    "no_data": "Aucune donnée disponible pour l'analyse",
+    "invalid_id": "ID d'anime invalide : {id}",
+    "platform_not_supported": "Plateforme non supportée : {platform}",
+    "rate_limited": "Limite de requêtes atteinte. Attente de {seconds} secondes..."
+  },
+  "help": {
+    "analyze": "Analyser le top N anime pour le review bombing",
+    "single": "Analyse approfondie d'un seul anime",
+    "compare": "Comparer les métriques de bombing entre anime",
+    "batch": "Analyse par lot depuis un fichier CSV",
+    "serve": "Démarrer le serveur API REST",
+    "platform": "Plateforme à analyser (mal, anilist, kitsu)",
+    "limit": "Nombre d'anime à analyser",
+    "output": "Répertoire de sortie pour les résultats",
+    "format": "Format d'exportation (excel, csv, json, html)",
+    "config": "Chemin vers le fichier de configuration",
+    "verbose": "Activer la sortie détaillée",
+    "no_cache": "Désactiver le cache",
+    "no_charts": "Désactiver la génération de graphiques"
+  }
+}
+
