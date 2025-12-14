@@ -1,4 +1,4 @@
-# Contributing to MAL Review Bombing Analyzer
+# Contributing to MAL Bombing Detector
 
 Thank you for your interest in contributing to this project! This document provides guidelines and instructions for contributing.
 
@@ -56,8 +56,8 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR-USERNAME/mal-review-bombing-analyzer.git
-cd mal-review-bombing-analyzer
+git clone https://github.com/YOUR-USERNAME/mal-bombing-detector.git
+cd mal-bombing-detector
 
 # Create virtual environment
 python -m venv .venv
