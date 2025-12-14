@@ -11,7 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from src.core.models import AnalysisResult, BombingSeverity
+from src.core.analyzer import AnalysisResult
+from src.core.models import BombingSeverity
 from src.utils.config import OutputConfig
 from src.utils.i18n import I18nManager
 from src.visualization.themes import ColorPalette, Theme, get_theme

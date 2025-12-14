@@ -235,6 +235,15 @@ class ExportConfig:
     def output_path(self) -> Path:
         """Get output directory as Path object."""
         return ROOT_DIR / self.output_directory
+    
+    @property
+    def directory(self) -> str:
+        """Alias for output_directory for compatibility."""
+        return self.output_directory
+
+
+# Alias for backward compatibility with exporters
+OutputConfig = ExportConfig
 
 
 @dataclass

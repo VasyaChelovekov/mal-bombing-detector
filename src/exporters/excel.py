@@ -15,7 +15,8 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.worksheet import Worksheet
 
-from src.core.models import AnalysisResult, BombingSeverity
+from src.core.analyzer import AnalysisResult
+from src.core.models import BombingSeverity
 from src.exporters.base import BaseExporter
 from src.utils.config import OutputConfig
 from src.utils.i18n import I18nManager

@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
-from src.core.models import AnalysisResult
+from src.core.analyzer import AnalysisResult
 from src.utils.config import OutputConfig
 from src.utils.i18n import I18nManager
 
