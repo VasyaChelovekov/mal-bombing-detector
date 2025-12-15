@@ -73,7 +73,7 @@ python -m src single 30276    # One Punch Man (by MAL ID)
 ### Compare Multiple Anime
 
 ```bash
-python -m src compare 21,1735,5114    # Comma-separated IDs
+python -m src compare 5114,9253,38524    # Comma-separated IDs
 ```
 
 ### Export Results
@@ -153,7 +153,7 @@ python -m src compare IDS [OPTIONS]
 **Examples:**
 ```bash
 python -m src compare 52991,57555,5114
-python -m src compare 30276,1735,38000
+python -m src compare 30276,9253,38524
 ```
 
 ### `version`
