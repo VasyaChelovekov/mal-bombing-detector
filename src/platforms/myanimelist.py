@@ -95,7 +95,23 @@ class MyAnimeListPlatform(AnimePlatform):
     async def _ensure_session(self) -> aiohttp.ClientSession:
         """Ensure we have an active session."""
         if self._session is None or self._session.closed:
+            # Create connector
+            connector = aiohttp.TCPConnector(
+                limit=10,
+                limit_per_host=5,
+                ttl_dns_cache=300,
+            )
+            
+            timeout = aiohttp.ClientTimeout(
+                total=self.config.scraping.timeout,
+                connect=15,
+                sock_read=self.config.scraping.timeout,
+            )
+            
             self._session = aiohttp.ClientSession(
+                connector=connector,
+                timeout=timeout,
+                trust_env=True,  # Use system proxy settings
                 headers={
                     'User-Agent': self._user_agent,
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -143,14 +159,11 @@ class MyAnimeListPlatform(AnimePlatform):
             await self._rate_limit()
             
             try:
-                async with session.get(
-                    url,
-                    timeout=aiohttp.ClientTimeout(total=self.config.scraping.timeout),
-                ) as response:
+                async with session.get(url) as response:
                     if response.status == 200:
                         return await response.text()
                     elif response.status == 429:
-                        retry_after = int(response.headers.get('Retry-After', 60))
+                        retry_after = int(response.headers.get('Retry-After', 30))
                         logger.warning(f"Rate limited. Waiting {retry_after}s...")
                         await asyncio.sleep(retry_after)
                         continue
@@ -160,7 +173,7 @@ class MyAnimeListPlatform(AnimePlatform):
                         logger.warning(f"HTTP {response.status} for {url}")
                         
             except asyncio.TimeoutError:
-                logger.warning(f"Timeout for {url} (attempt {attempt + 1})")
+                logger.warning(f"Timeout for {url} (attempt {attempt + 1}/{retries + 1})")
             except aiohttp.ClientError as e:
                 logger.warning(f"Request error: {e} (attempt {attempt + 1})")
             

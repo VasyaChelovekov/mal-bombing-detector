@@ -104,8 +104,8 @@ class MetricsCalculator:
         adjusted_score = bombing_score * context.get_total_adjustment()
         adjusted_score = min(100, max(0, adjusted_score))
         
-        # Classification
-        suspicion_level = self._classify_level(bombing_score)
+        # Classification (with z-score override for extreme cases)
+        suspicion_level = self._classify_level(bombing_score, ones_zscore, ones_pct)
         
         # Severity
         severity = self._calculate_severity(
@@ -230,10 +230,40 @@ class MetricsCalculator:
         
         return factors
     
-    def _classify_level(self, score: float) -> SuspicionLevel:
-        """Classify bombing score into suspicion level."""
+    def _classify_level(
+        self,
+        score: float,
+        ones_zscore: float = 0.0,
+        ones_pct: float = 0.0,
+    ) -> SuspicionLevel:
+        """
+        Classify bombing score into suspicion level.
+        
+        Applies z-score overrides for extreme statistical anomalies
+        that may not be captured by the composite score alone.
+        
+        Args:
+            score: Composite bombing score.
+            ones_zscore: Z-score of ones percentage.
+            ones_pct: Actual ones percentage.
+        
+        Returns:
+            Suspicion level classification.
+        """
         thresholds = self.config.analysis.suspicion_thresholds
         
+        # Z-score override: extreme statistical anomalies
+        # For highly rated anime (elite/excellent), high ones% is very suspicious
+        # Z-score > 10 means the ones% is 10+ standard deviations above expected
+        if ones_zscore >= 15:
+            return SuspicionLevel.CRITICAL
+        elif ones_zscore >= 10:
+            return SuspicionLevel.HIGH
+        elif ones_zscore >= 6 and ones_pct >= 3.0:
+            # High z-score + substantial ones percentage = suspicious
+            return SuspicionLevel.HIGH
+        
+        # Standard threshold-based classification
         if score >= thresholds.critical:
             return SuspicionLevel.CRITICAL
         elif score >= thresholds.high:
