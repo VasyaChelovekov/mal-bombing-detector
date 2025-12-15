@@ -18,7 +18,7 @@ from typing import List, Optional
 
 import typer
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
 from rich.table import Table
 
 from ..core import (
@@ -130,23 +130,30 @@ async def run_analysis(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         console=console,
+        transient=True,
     ) as progress:
         task = progress.add_task(f"Fetching top {limit} anime...", total=None)
         
         top_anime = await platform.get_top_anime(limit)
         progress.update(task, completed=True)
         
+        console.print(f"[green]✓[/green] Fetched {len(top_anime)} anime from rankings")
         logger.info(f"Fetched {len(top_anime)} anime from rankings")
     
-    # Fetch stats for each anime
+    # Fetch stats for each anime with proper progress bar
+    failed_count = 0
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TextColumn("•"),
+        TimeRemainingColumn(),
         console=console,
     ) as progress:
-        task = progress.add_task("Collecting statistics...", total=len(top_anime))
+        task = progress.add_task("Collecting statistics", total=len(top_anime))
         
-        for anime in top_anime:
+        for i, anime in enumerate(top_anime):
             try:
                 stats = await platform.get_anime_stats(anime.mal_id)
                 if stats and stats.distribution:
@@ -158,10 +165,13 @@ async def run_analysis(
                         stats.score = anime.score
                     anime_list.append(stats)
             except Exception as e:
+                failed_count += 1
                 logger.warning(f"Failed to get stats for {anime.mal_id}: {e}")
             
-            progress.advance(task)
+            progress.update(task, completed=i + 1)
     
+    console.print(f"[green]✓[/green] Collected stats for {len(anime_list)} anime" + 
+                  (f" [yellow]({failed_count} failed)[/yellow]" if failed_count else ""))
     logger.info(f"Collected stats for {len(anime_list)} anime")
     
     # Analyze

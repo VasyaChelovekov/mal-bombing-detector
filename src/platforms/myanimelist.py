@@ -219,6 +219,9 @@ class MyAnimeListPlatform(AnimePlatform):
                         continue
                     elif response.status == 404:
                         raise NotFoundError(f"Not found: {url}")
+                    elif response.status in (403, 405):
+                        # Server is blocking - don't retry, skip this anime
+                        raise NotFoundError(f"Access denied (HTTP {response.status}): {url}")
                     else:
                         self._on_request_error(is_rate_limit=False)
                         logger.warning(f"HTTP {response.status} for {url}")
@@ -332,8 +335,8 @@ class MyAnimeListPlatform(AnimePlatform):
                 logger.debug(f"Cache hit for anime {anime_id}")
                 return AnimeData.from_dict(cached)
         
-        # Fetch stats page
-        url = f"{self.BASE_URL}/anime/{anime_id}/_/stats"
+        # Fetch stats page - use simple URL format without title slug
+        url = f"{self.BASE_URL}/anime/{anime_id}/stats"
         
         try:
             html = await self._make_request(url)
