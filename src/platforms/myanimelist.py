@@ -68,6 +68,13 @@ class MyAnimeListPlatform(AnimePlatform):
         self._owns_session = session is None
         self._last_request_time = 0.0
         
+        # Adaptive delay settings
+        self._min_delay = 0.5  # Minimum delay between requests
+        self._max_delay = 5.0  # Maximum delay (after rate limiting)
+        self._current_delay = self._min_delay  # Start with minimum
+        self._success_streak = 0  # Consecutive successful requests
+        self._delay_decrease_threshold = 5  # Decrease delay after N successes
+        
         # Cache
         self._use_cache = use_cache and self.config.cache.enabled
         self._cache: Optional[FileCache] = None
@@ -120,14 +127,46 @@ class MyAnimeListPlatform(AnimePlatform):
         return self._session
     
     async def _rate_limit(self) -> None:
-        """Apply rate limiting between requests."""
-        elapsed = time.time() - self._last_request_time
-        delay = self.config.scraping.request_delay
+        """
+        Apply adaptive rate limiting between requests.
         
-        if elapsed < delay:
-            await asyncio.sleep(delay - elapsed)
+        Uses dynamic delay that:
+        - Starts at minimum (0.5s)
+        - Increases on rate limiting or errors
+        - Decreases after consecutive successes
+        """
+        elapsed = time.time() - self._last_request_time
+        
+        if elapsed < self._current_delay:
+            await asyncio.sleep(self._current_delay - elapsed)
         
         self._last_request_time = time.time()
+    
+    def _on_request_success(self) -> None:
+        """Called after successful request to potentially decrease delay."""
+        self._success_streak += 1
+        
+        # Decrease delay after several consecutive successes
+        if self._success_streak >= self._delay_decrease_threshold:
+            self._current_delay = max(
+                self._min_delay,
+                self._current_delay * 0.8  # Decrease by 20%
+            )
+            self._success_streak = 0
+            logger.debug(f"Decreased delay to {self._current_delay:.2f}s")
+    
+    def _on_request_error(self, is_rate_limit: bool = False) -> None:
+        """Called after failed request to increase delay."""
+        self._success_streak = 0
+        
+        if is_rate_limit:
+            # Double delay on rate limiting
+            self._current_delay = min(self._max_delay, self._current_delay * 2)
+            logger.info(f"Rate limited! Increased delay to {self._current_delay:.2f}s")
+        else:
+            # Slight increase on other errors
+            self._current_delay = min(self._max_delay, self._current_delay * 1.5)
+            logger.debug(f"Request error. Increased delay to {self._current_delay:.2f}s")
     
     async def _make_request(
         self,
@@ -135,7 +174,7 @@ class MyAnimeListPlatform(AnimePlatform):
         retries: int = None,
     ) -> str:
         """
-        Make an HTTP request with retrying.
+        Make an HTTP request with retrying and adaptive delay.
         
         Args:
             url: URL to request.
@@ -159,8 +198,10 @@ class MyAnimeListPlatform(AnimePlatform):
             try:
                 async with session.get(url) as response:
                     if response.status == 200:
+                        self._on_request_success()
                         return await response.text()
                     elif response.status == 429:
+                        self._on_request_error(is_rate_limit=True)
                         retry_after = int(response.headers.get('Retry-After', 30))
                         logger.warning(f"Rate limited. Waiting {retry_after}s...")
                         await asyncio.sleep(retry_after)
@@ -168,11 +209,14 @@ class MyAnimeListPlatform(AnimePlatform):
                     elif response.status == 404:
                         raise NotFoundError(f"Not found: {url}")
                     else:
+                        self._on_request_error(is_rate_limit=False)
                         logger.warning(f"HTTP {response.status} for {url}")
                         
             except asyncio.TimeoutError:
+                self._on_request_error(is_rate_limit=False)
                 logger.warning(f"Timeout for {url} (attempt {attempt + 1}/{retries + 1})")
             except aiohttp.ClientError as e:
+                self._on_request_error(is_rate_limit=False)
                 logger.warning(f"Request error: {e} (attempt {attempt + 1})")
             
             if attempt < retries:
