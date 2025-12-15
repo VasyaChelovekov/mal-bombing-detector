@@ -2,7 +2,6 @@
 MAL Review Bombing Analyzer Project Configuration
 """
 
-import os
 from pathlib import Path
 
 # Base paths

@@ -5,7 +5,6 @@ These tests verify that all components work together correctly.
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from src.core.analyzer import BombingAnalyzer, AnalysisResult
 from src.core.metrics import MetricsCalculator

@@ -3,7 +3,6 @@ Unit tests for models module.
 """
 
 import pytest
-from datetime import datetime
 
 from src.core.models import (
     AnimeData,

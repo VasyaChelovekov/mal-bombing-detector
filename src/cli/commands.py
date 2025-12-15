@@ -150,9 +150,12 @@ async def run_analysis(
             try:
                 stats = await platform.get_anime_stats(anime.mal_id)
                 if stats and stats.distribution:
-                    # Merge data
+                    # Merge data from top list
                     stats.rank = anime.rank
                     stats.members = anime.members or stats.members
+                    # Use score from top list if stats page didn't have it
+                    if stats.score == 0.0 and anime.score > 0:
+                        stats.score = anime.score
                     anime_list.append(stats)
             except Exception as e:
                 logger.warning(f"Failed to get stats for {anime.mal_id}: {e}")

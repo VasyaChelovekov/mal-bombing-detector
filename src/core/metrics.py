@@ -268,11 +268,19 @@ class MetricsCalculator:
         
         # Spike ratio override: extreme 1:2 vote imbalance
         # Natural distributions have 1s and 2s in similar proportions
-        # Ratio > 10 is extremely unnatural and indicates coordinated 1-bombing
-        if spike_ratio >= 10.0:
+        # Ratio >= 8 is extremely unnatural and indicates coordinated 1-bombing
+        if spike_ratio >= 8.0:
             return SuspicionLevel.HIGH
-        elif spike_ratio >= 6.0 and ones_pct >= 1.5:
+        elif spike_ratio >= 5.0 and ones_pct >= 1.5:
             # High spike ratio + notable ones = suspicious
+            return SuspicionLevel.MEDIUM
+        
+        # Ones% override: For elite anime (score >= 8.5), high ones% is very suspicious
+        # Even without high z-score, 3.5%+ ones on top-rated anime is anomalous
+        if ones_pct >= 3.5:
+            return SuspicionLevel.HIGH
+        elif ones_pct >= 2.5 and spike_ratio >= 3.0:
+            # Moderate ones% + elevated spike ratio = suspicious
             return SuspicionLevel.MEDIUM
         
         # Standard threshold-based classification

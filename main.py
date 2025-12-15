@@ -22,12 +22,12 @@ from typing import List, Optional
 BASE_DIR = Path(__file__).parent
 sys.path.insert(0, str(BASE_DIR))
 
-from src.core.analyzer import BombingAnalyzer, AnalysisResult
-from src.core.metrics import MetricsCalculator
-from src.core.models import AnimeData, ReviewBombingMetrics, SuspicionLevel
-from src.platforms import get_platform
-from src.utils.logging import setup_logging, get_logger
-from src.utils.config import get_config
+from src.core.analyzer import BombingAnalyzer, AnalysisResult  # noqa: E402
+from src.core.metrics import MetricsCalculator  # noqa: E402
+from src.core.models import AnimeData, SuspicionLevel  # noqa: E402
+from src.platforms import get_platform  # noqa: E402
+from src.utils.logging import setup_logging, get_logger  # noqa: E402
+from src.utils.config import get_config  # noqa: E402
 
 # Setup logging
 logger = get_logger(__name__)
@@ -118,7 +118,7 @@ class MALBombingAnalyzer:
         
         self.results = self.analyzer.analyze_batch(self.anime_list)
         
-        logger.info(f"Analysis complete. Found:")
+        logger.info("Analysis complete. Found:")
         logger.info(f"  - Critical: {self.results.summary.critical_count}")
         logger.info(f"  - High: {self.results.summary.high_count}")
         logger.info(f"  - Medium: {self.results.summary.medium_count}")
@@ -170,7 +170,7 @@ class MALBombingAnalyzer:
         print(f"Total analyzed: {summary.total_analyzed} anime")
         print(f"Mean Bombing Score: {summary.score_mean:.2f}")
         
-        print(f"\nDistribution by levels:")
+        print("\nDistribution by levels:")
         print(f"  🔴 Critical: {summary.critical_count}")
         print(f"  🟠 High: {summary.high_count}")
         print(f"  🟡 Medium: {summary.medium_count}")
@@ -263,7 +263,7 @@ def main():
     try:
         results = asyncio.run(analyzer.run_full_analysis())
         
-        print(f"\n✅ Analysis completed successfully!")
+        print("\n✅ Analysis completed successfully!")
         print(f"   Analyzed: {results['anime_count']} anime")
         print(f"   Execution time: {results['elapsed_seconds']:.1f} sec")
             

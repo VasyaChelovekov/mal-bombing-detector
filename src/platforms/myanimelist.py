@@ -359,9 +359,13 @@ class MyAnimeListPlatform(AnimePlatform):
         title_elem = soup.select_one('h1.title-name')
         title = title_elem.text.strip() if title_elem else f"Anime {anime_id}"
         
-        # Get score
-        score_elem = soup.select_one('div.score-label')
+        # Get score - try multiple selectors as page structure varies
         score = 0.0
+        # Try span.score-label first (stats page)
+        score_elem = soup.select_one('span.score-label')
+        if not score_elem:
+            # Try div.score-label (main anime page)
+            score_elem = soup.select_one('div.score-label')
         if score_elem:
             try:
                 score = float(score_elem.text.strip())
