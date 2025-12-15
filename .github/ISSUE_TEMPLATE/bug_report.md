@@ -30,7 +30,7 @@ Paste error message or traceback here
 ## Environment
 - OS: [e.g., Windows 11, Ubuntu 22.04]
 - Python version: [e.g., 3.11.5]
-- Project version: [e.g., 2.0.0]
+- Project version: [e.g., 1.0.0]
 
 ## Additional Context
 Add any other context about the problem here.

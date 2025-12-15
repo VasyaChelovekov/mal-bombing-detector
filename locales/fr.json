@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "MAL Bombing Detector",
-    "version": "2.0.0",
+    "version": "1.0.0",
     "description": "Outil d'analyse statistique pour détecter la manipulation de votes sur les plateformes d'anime"
   },
   "cli": {

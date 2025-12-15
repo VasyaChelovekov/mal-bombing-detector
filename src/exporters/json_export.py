@@ -91,7 +91,7 @@ class JSONExporter(BaseExporter):
         return {
             "generated_at": datetime.now().isoformat(),
             "generator": "MAL Bombing Detector",
-            "version": "2.0.0",
+            "version": "1.0.0",
             "total_anime": len(results),
             "language": self.i18n.language
         }

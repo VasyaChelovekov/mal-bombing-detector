@@ -67,7 +67,7 @@ def print_header():
     """Print application header."""
     console.print()
     console.print("╔══════════════════════════════════════════════════════════════╗", style="cyan")
-    console.print("║         [bold]MAL BOMBING DETECTOR[/bold] v2.0                            ║", style="cyan")
+    console.print("║         [bold]MAL BOMBING DETECTOR[/bold] v1.0                            ║", style="cyan")
     console.print("║         Vote brigading detection for anime platforms         ║", style="cyan")
     console.print("╚══════════════════════════════════════════════════════════════╝", style="cyan")
     console.print()
@@ -469,7 +469,7 @@ def compare(
 @app.command()
 def version():
     """Show version information."""
-    console.print("MAL Bombing Detector v2.0.0")
+    console.print("MAL Bombing Detector v1.0.0")
     console.print("https://github.com/VasyaChelovekov/mal-bombing-detector")
 
 

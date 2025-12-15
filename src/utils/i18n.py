@@ -32,8 +32,8 @@ class I18n:
     
     Example:
         >>> i18n = I18n("en")
-        >>> i18n.t("cli.welcome", version="2.0.0")
-        'MAL Bombing Detector v2.0.0'
+        >>> i18n.t("cli.welcome", version="1.0.0")
+        'MAL Bombing Detector v1.0.0'
     """
     
     def __init__(self, language: str = "en"):

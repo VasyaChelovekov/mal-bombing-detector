@@ -185,7 +185,7 @@ class MALBombingAnalyzer:
         """
         start_time = datetime.now()
         logger.info("=" * 60)
-        logger.info("MAL BOMBING DETECTOR v2.0")
+        logger.info("MAL BOMBING DETECTOR v1.0")
         logger.info("=" * 60)
         
         try:
@@ -249,7 +249,7 @@ def main():
     
     print("""
     ╔══════════════════════════════════════════════════════════════╗
-    ║         MAL BOMBING DETECTOR v2.0                            ║
+    ║         MAL BOMBING DETECTOR v1.0                            ║
     ║         Vote brigading detection on anime platforms          ║
     ╚══════════════════════════════════════════════════════════════╝
     """)

@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "MAL Bombing Detector",
-    "version": "2.0.0",
+    "version": "1.0.0",
     "description": "用于检测动漫平台评分操纵的统计分析工具"
   },
   "cli": {
