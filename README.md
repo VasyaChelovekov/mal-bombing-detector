@@ -1,266 +1,529 @@
-# MAL Bombing Detector# MAL Bombing Detector
+# MAL Bombing Detector# MAL Bombing Detector# MAL Bombing Detector
 
 
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
-
-
-A sophisticated tool for detecting and analyzing review bombing patterns on MyAnimeList (MAL). Uses statistical analysis to identify coordinated rating manipulation.A sophisticated tool for detecting and analyzing review bombing patterns on MyAnimeList (MAL). Uses statistical analysis and machine learning techniques to identify coordinated rating manipulation.
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
 
 
-> **Repository**: [github.com/VasyaChelovekov/mal-bombing-detector](https://github.com/VasyaChelovekov/mal-bombing-detector)> **Repository**: [github.com/VasyaChelovekov/mal-bombing-detector](https://github.com/VasyaChelovekov/mal-bombing-detector)
+A sophisticated tool for detecting and analyzing review bombing patterns on MyAnimeList (MAL). Uses statistical analysis to identify coordinated rating manipulation.[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
 
-## Features## Features
+> **Repository**: [github.com/VasyaChelovekov/mal-bombing-detector](https://github.com/VasyaChelovekov/mal-bombing-detector)[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
 
-- 🔍 **Multi-factor Detection Algorithm** - Combines Z-scores, spike ratios, entropy analysis, and bimodality detection- 🔍 **Multi-factor Detection Algorithm** - Combines Z-scores, effect sizes, entropy analysis, and bimodality detection
+## Features
 
-- 📊 **Comprehensive Visualization** - Distribution charts, heatmaps, correlation analysis- 📊 **Comprehensive Visualization** - Distribution charts, heatmaps, correlation analysis
+
+
+- 🔍 **Multi-factor Detection Algorithm** - Combines Z-scores, spike ratios, entropy analysis, and bimodality detectionA sophisticated tool for detecting and analyzing review bombing patterns on MyAnimeList (MAL). Uses statistical analysis to identify coordinated rating manipulation.A sophisticated tool for detecting and analyzing review bombing patterns on MyAnimeList (MAL). Uses statistical analysis and machine learning techniques to identify coordinated rating manipulation.
+
+- 📊 **Comprehensive Visualization** - Distribution charts, heatmaps, correlation analysis
+
+- 📈 **Multiple Export Formats** - Excel, JSON, CSV, HTML reports
+
+- 🌐 **Internationalization** - 7 languages supported (en, ru, es, ja, zh, de, fr)
+
+- ⚡ **Async Scraping** - Fast, rate-limited data collection with adaptive delays> **Repository**: [github.com/VasyaChelovekov/mal-bombing-detector](https://github.com/VasyaChelovekov/mal-bombing-detector)> **Repository**: [github.com/VasyaChelovekov/mal-bombing-detector](https://github.com/VasyaChelovekov/mal-bombing-detector)
+
+- 🔧 **Highly Configurable** - YAML configuration for all thresholds and weights
+
+- 🧪 **Well Tested** - 44 unit and integration tests
+
+
+
+## Quick Start## Features## Features
+
+
+
+### Installation
+
+
+
+```bash- 🔍 **Multi-factor Detection Algorithm** - Combines Z-scores, spike ratios, entropy analysis, and bimodality detection- 🔍 **Multi-factor Detection Algorithm** - Combines Z-scores, effect sizes, entropy analysis, and bimodality detection
+
+# Clone the repository
+
+git clone https://github.com/VasyaChelovekov/mal-bombing-detector.git- 📊 **Comprehensive Visualization** - Distribution charts, heatmaps, correlation analysis- 📊 **Comprehensive Visualization** - Distribution charts, heatmaps, correlation analysis
+
+cd mal-bombing-detector
 
 - 📈 **Multiple Export Formats** - Excel, JSON, CSV, HTML reports- 📈 **Multiple Export Formats** - Excel, JSON, CSV, HTML reports
 
-- 🌐 **Internationalization** - 7 languages supported (en, ru, es, ja, zh, de, fr)- 🌐 **Internationalization** - 7 languages supported (English, Russian, Spanish, Japanese, Chinese, German, French)
+# Create virtual environment
 
-- ⚡ **Async Scraping** - Fast, rate-limited data collection with adaptive delays- ⚡ **Async Scraping** - Fast, rate-limited data collection
+python -m venv .venv- 🌐 **Internationalization** - 7 languages supported (en, ru, es, ja, zh, de, fr)- 🌐 **Internationalization** - 7 languages supported (English, Russian, Spanish, Japanese, Chinese, German, French)
 
-- 🔧 **Highly Configurable** - YAML configuration for all thresholds and weights- 🔧 **Highly Configurable** - YAML configuration for all thresholds and weights
+.venv\Scripts\activate  # Windows
+
+# source .venv/bin/activate  # Linux/macOS- ⚡ **Async Scraping** - Fast, rate-limited data collection with adaptive delays- ⚡ **Async Scraping** - Fast, rate-limited data collection
+
+
+
+# Install dependencies- 🔧 **Highly Configurable** - YAML configuration for all thresholds and weights- 🔧 **Highly Configurable** - YAML configuration for all thresholds and weights
+
+pip install -r requirements.txt
 
 - 🧪 **Well Tested** - 44 unit and integration tests- 🧪 **Well Tested** - Comprehensive unit and integration tests
 
+# Copy configuration
 
-
-## Quick Start## Quick Start
-
-
-
-### Installation### Installation
-
-
-
-```bash```bash
-
-# Clone the repository# Clone the repository
-
-git clone https://github.com/VasyaChelovekov/mal-bombing-detector.gitgit clone https://github.com/VasyaChelovekov/mal-bombing-detector.git
-
-cd mal-bombing-detectorcd mal-bombing-detector
-
-
-
-# Create virtual environment# Create virtual environment
-
-python -m venv .venvpython -m venv .venv
-
-.venv\Scripts\activate  # Windows.venv\Scripts\activate  # Windows
-
-# source .venv/bin/activate  # Linux/macOS# source .venv/bin/activate  # Linux/macOS
-
-
-
-# Install dependencies# Install dependencies
-
-pip install -r requirements.txtpip install -r requirements.txt
-
-
-
-# Copy configuration# Copy configuration
-
-cp config/config.example.yaml config/config.yamlcp config/config.example.yaml config/config.yaml
-
-``````
-
-
-
-### CLI Usage### Basic Usage
-
-
-
-```bash```bash
-
-# Analyze top 100 anime# Analyze top 100 anime
-
-python -m src analyze -n 100mal-analyzer analyze --top 100
-
-
-
-# Analyze with specific output format# Analyze a single anime
-
-python -m src analyze --limit 50 --format excel,jsonmal-analyzer single 5114  # Fullmetal Alchemist: Brotherhood
-
-
-
-# Analyze and save to custom directory# Compare multiple anime
-
-python -m src analyze -n 100 -o ./reports -f jsonmal-analyzer compare 5114 1735 28977
-
-
-
-# Analyze a single anime by ID# Batch analysis from file
-
-python -m src single 5114  # Fullmetal Alchemist: Brotherhoodmal-analyzer batch anime_ids.txt
+cp config/config.example.yaml config/config.yaml
 
 ```
 
+## Quick Start## Quick Start
+
+### CLI Usage
+
+
+
+```bash
+
+# Analyze top 100 anime### Installation### Installation
+
+python -m src analyze -n 100
+
+
+
+# Analyze with specific output format
+
+python -m src analyze --limit 50 --format excel,json```bash```bash
+
+
+
+# Analyze and save to custom directory# Clone the repository# Clone the repository
+
+python -m src analyze -n 100 -o ./reports -f json
+
+git clone https://github.com/VasyaChelovekov/mal-bombing-detector.gitgit clone https://github.com/VasyaChelovekov/mal-bombing-detector.git
+
+# Analyze a single anime by ID
+
+python -m src single 5114  # Fullmetal Alchemist: Brotherhoodcd mal-bombing-detectorcd mal-bombing-detector
+
+
+
 # Compare multiple anime
 
-python -m src compare 5114,1735,28977### Python API
+python -m src compare 5114,1735,28977
 
+# Create virtual environment# Create virtual environment
 
+# Show version
 
-# Show version```python
+python -m src versionpython -m venv .venvpython -m venv .venv
 
-python -m src versionimport asyncio
+```
 
-```from src.core.analyzer import BombingAnalyzer
+.venv\Scripts\activate  # Windows.venv\Scripts\activate  # Windows
 
-from src.core.models import SuspicionLevel
+### Python API
 
-### Python APIfrom src.platforms import get_platform
+# source .venv/bin/activate  # Linux/macOS# source .venv/bin/activate  # Linux/macOS
 
+```python
 
+import asyncio
 
-```pythonasync def analyze_top_anime():
+from src.core.analyzer import BombingAnalyzer
 
-import asyncio    # Initialize platform and analyzer
+from src.core.models import SuspicionLevel# Install dependencies# Install dependencies
 
-from src.core.analyzer import BombingAnalyzer    platform = get_platform("myanimelist")
+from src.platforms import get_platform
 
-from src.core.models import SuspicionLevel    analyzer = BombingAnalyzer()
+pip install -r requirements.txtpip install -r requirements.txt
 
-from src.platforms import get_platform    
+async def analyze_top_anime():
+
+    platform = get_platform("myanimelist")
+
+    analyzer = BombingAnalyzer()
+
+    # Copy configuration# Copy configuration
 
     async with platform:
 
-async def analyze_top_anime():        # Fetch top anime
+        # Fetch top animecp config/config.example.yaml config/config.yamlcp config/config.example.yaml config/config.yaml
 
-    platform = get_platform("myanimelist")        top_anime = await platform.get_top_anime(limit=100)
+        top_anime = await platform.get_top_anime(limit=100)
 
-    analyzer = BombingAnalyzer()        
+        ``````
 
-            # Get stats and analyze
+        # Get stats and analyze
 
-    async with platform:        anime_list = []
+        anime_list = []
 
-        # Fetch top anime        for anime in top_anime:
+        for anime in top_anime:
 
-        top_anime = await platform.get_top_anime(limit=100)            stats = await platform.get_anime_stats(anime.mal_id)
+            stats = await platform.get_anime_stats(anime.mal_id)### CLI Usage### Basic Usage
 
-                    if stats and stats.distribution:
+            if stats and stats.distribution:
 
-        # Get stats and analyze                anime_list.append(stats)
+                # Use score from top list if stats page didn't have it
 
-        anime_list = []        
+                if stats.score == 0.0 and anime.score > 0:
 
-        for anime in top_anime:        # Analyze batch
+                    stats.score = anime.score```bash```bash
 
-            stats = await platform.get_anime_stats(anime.mal_id)        results = analyzer.analyze_batch(anime_list)
+                anime_list.append(stats)
 
-            if stats and stats.distribution:        
+        # Analyze top 100 anime# Analyze top 100 anime
 
-                # Merge score from top list if needed        # Process results
+        # Analyze batch
 
-                if stats.score == 0.0 and anime.score > 0:        for metrics in results.metrics:
-
-                    stats.score = anime.score            if metrics.suspicion_level in [SuspicionLevel.CRITICAL, SuspicionLevel.HIGH]:
-
-                anime_list.append(stats)                print(f"{metrics.title}: {metrics.bombing_score:.2f}")
+        results = analyzer.analyze_batch(anime_list)python -m src analyze -n 100mal-analyzer analyze --top 100
 
         
 
-        # Analyze batch# Run
-
-        results = analyzer.analyze_batch(anime_list)asyncio.run(analyze_top_anime())
-
-        ```
-
         # Process results - get top 20 by bombing score
 
-        for metrics in results.get_top(20):## Project Structure
+        for metrics in results.get_top(20):
 
-            if metrics.suspicion_level in [SuspicionLevel.CRITICAL, SuspicionLevel.HIGH]:
+            if metrics.suspicion_level in [SuspicionLevel.CRITICAL, SuspicionLevel.HIGH]:# Analyze with specific output format# Analyze a single anime
 
-                print(f"{metrics.title}: {metrics.bombing_score:.2f} ({metrics.suspicion_level.value})")```
+                print(f"{metrics.title}: {metrics.bombing_score:.2f} ({metrics.suspicion_level.value})")
+
+python -m src analyze --limit 50 --format excel,jsonmal-analyzer single 5114  # Fullmetal Alchemist: Brotherhood
+
+asyncio.run(analyze_top_anime())
+
+```
+
+
+
+## Project Structure# Analyze and save to custom directory# Compare multiple anime
+
+
+
+```python -m src analyze -n 100 -o ./reports -f jsonmal-analyzer compare 5114 1735 28977
 
 mal-bombing-detector/
 
-asyncio.run(analyze_top_anime())├── config/
+├── config/
 
-```│   └── config.example.yaml     # Configuration template
+│   ├── config.example.yaml     # Configuration template
 
-├── locales/
+│   └── config.yaml             # Your configuration (gitignored)# Analyze a single anime by ID# Batch analysis from file
 
-## Project Structure│   ├── en.json                 # English translations
+├── locales/                    # Translations (en, ru, es, ja, zh, de, fr)
+
+├── src/python -m src single 5114  # Fullmetal Alchemist: Brotherhoodmal-analyzer batch anime_ids.txt
+
+│   ├── __main__.py             # Entry point for python -m src
+
+│   ├── cli/                    # Command-line interface (typer + rich)```
+
+│   ├── core/                   # Core analysis logic
+
+│   │   ├── analyzer.py         # Main orchestrator# Compare multiple anime
+
+│   │   ├── metrics.py          # Bombing metrics calculator
+
+│   │   ├── models.py           # Data modelspython -m src compare 5114,1735,28977### Python API
+
+│   │   └── statistics.py       # Statistical utilities
+
+│   ├── exporters/              # Export formats (excel, json, csv, html)
+
+│   ├── platforms/              # Platform adapters
+
+│   │   ├── base.py             # Abstract interface# Show version```python
+
+│   │   └── myanimelist.py      # MAL scraper implementation
+
+│   ├── utils/                  # Utilities (cache, config, i18n, logging)python -m src versionimport asyncio
+
+│   └── visualization/          # Chart generation
+
+├── tests/```from src.core.analyzer import BombingAnalyzer
+
+│   ├── unit/                   # Unit tests
+
+│   └── integration/            # Integration testsfrom src.core.models import SuspicionLevel
+
+├── output/                     # Generated reports (gitignored)
+
+├── pyproject.toml### Python APIfrom src.platforms import get_platform
+
+├── requirements.txt
+
+└── README.md
+
+```
+
+```pythonasync def analyze_top_anime():
+
+## Detection Algorithm
+
+import asyncio    # Initialize platform and analyzer
+
+The analyzer uses a multi-factor approach to detect review bombing:
+
+from src.core.analyzer import BombingAnalyzer    platform = get_platform("myanimelist")
+
+### Primary Metrics
+
+from src.core.models import SuspicionLevel    analyzer = BombingAnalyzer()
+
+| Metric | Description | Weight |
+
+|--------|-------------|--------|from src.platforms import get_platform    
+
+| **Ones Z-Score** | Statistical deviation of 1-votes from expected for rating category | 35% |
+
+| **Spike Ratio** | Ratio of 1-votes to 2-votes (natural ratio ≈ 1:1) | 20% |    async with platform:
+
+| **Distribution Effect** | Cohen's d comparing actual vs expected distribution | 20% |
+
+| **Bimodality Index** | Degree of polarization (1s and 10s concentration) | 15% |async def analyze_top_anime():        # Fetch top anime
+
+| **Entropy Deficit** | Information entropy reduction from uniform distribution | 10% |
+
+    platform = get_platform("myanimelist")        top_anime = await platform.get_top_anime(limit=100)
+
+### Suspicion Levels
+
+    analyzer = BombingAnalyzer()        
+
+| Level | Score | Interpretation |
+
+|-------|-------|----------------|            # Get stats and analyze
+
+| 🔴 **Critical** | ≥ 75 | Clear evidence of coordinated bombing |
+
+| 🟠 **High** | 55 - 74 | Strong indicators of manipulation |    async with platform:        anime_list = []
+
+| 🟡 **Medium** | 35 - 54 | Suspicious patterns detected |
+
+| 🟢 **Low** | < 35 | Within normal variation |        # Fetch top anime        for anime in top_anime:
+
+
+
+### Override Rules        top_anime = await platform.get_top_anime(limit=100)            stats = await platform.get_anime_stats(anime.mal_id)
+
+
+
+The algorithm applies direct overrides for extreme statistical anomalies:                    if stats and stats.distribution:
+
+
+
+- **Z-score ≥ 15** → Critical (regardless of composite score)        # Get stats and analyze                anime_list.append(stats)
+
+- **Z-score ≥ 10** → High
+
+- **Spike ratio ≥ 8** → High        anime_list = []        
+
+- **Ones% ≥ 3.5%** on highly-rated anime → High
+
+        for anime in top_anime:        # Analyze batch
+
+## Configuration
+
+            stats = await platform.get_anime_stats(anime.mal_id)        results = analyzer.analyze_batch(anime_list)
+
+All settings are configurable via `config/config.yaml`:
+
+            if stats and stats.distribution:        
+
+```yaml
+
+analysis:                # Merge score from top list if needed        # Process results
+
+  min_votes_threshold: 1000
+
+                  if stats.score == 0.0 and anime.score > 0:        for metrics in results.metrics:
+
+  # Expected ones% by rating category
+
+  expected_ones_by_rating:                    stats.score = anime.score            if metrics.suspicion_level in [SuspicionLevel.CRITICAL, SuspicionLevel.HIGH]:
+
+    elite:     # score >= 9.0
+
+      mean: 0.4                anime_list.append(stats)                print(f"{metrics.title}: {metrics.bombing_score:.2f}")
+
+      std: 0.25
+
+    excellent: # score >= 8.5        
+
+      mean: 0.7
+
+      std: 0.35        # Analyze batch# Run
+
+    great:     # score >= 8.0
+
+      mean: 1.2        results = analyzer.analyze_batch(anime_list)asyncio.run(analyze_top_anime())
+
+      std: 0.5
+
+        ```
+
+scraping:
+
+  timeout: 30        # Process results - get top 20 by bombing score
+
+  max_retries: 3
+
+  retry_delay: 2.0        for metrics in results.get_top(20):## Project Structure
+
+  
+
+  adaptive_delay:            if metrics.suspicion_level in [SuspicionLevel.CRITICAL, SuspicionLevel.HIGH]:
+
+    enabled: true
+
+    min_delay: 0.5                print(f"{metrics.title}: {metrics.bombing_score:.2f} ({metrics.suspicion_level.value})")```
+
+    max_delay: 5.0
+
+    success_threshold: 5mal-bombing-detector/
+
+
+
+output:asyncio.run(analyze_top_anime())├── config/
+
+  directory: "./output"
+
+  cache_directory: "./data/cache"```│   └── config.example.yaml     # Configuration template
+
+
+
+logging:├── locales/
+
+  level: "INFO"
+
+  file: "output/analysis.log"## Project Structure│   ├── en.json                 # English translations
+
+```
 
 │   ├── ru.json                 # Russian translations
 
+## Development
+
 ```│   ├── es.json                 # Spanish translations
+
+### Setup Development Environment
 
 mal-bombing-detector/│   ├── ja.json                 # Japanese translations
 
-├── config/│   ├── zh.json                 # Chinese translations
+```bash
 
-│   ├── config.example.yaml     # Configuration template│   ├── de.json                 # German translations
+# Install dev dependencies├── config/│   ├── zh.json                 # Chinese translations
 
-│   └── config.yaml             # Your configuration (gitignored)│   └── fr.json                 # French translations
+pip install -r requirements-dev.txt
 
-├── locales/                    # Translations (en, ru, es, ja, zh, de, fr)├── src/
+```│   ├── config.example.yaml     # Configuration template│   ├── de.json                 # German translations
 
-├── src/│   ├── cli/                    # Command-line interface
 
-│   ├── __main__.py             # Entry point for python -m src│   ├── core/                   # Core analysis logic
+
+### Running Tests│   └── config.yaml             # Your configuration (gitignored)│   └── fr.json                 # French translations
+
+
+
+```bash├── locales/                    # Translations (en, ru, es, ja, zh, de, fr)├── src/
+
+# All tests
+
+pytest├── src/│   ├── cli/                    # Command-line interface
+
+
+
+# With coverage│   ├── __main__.py             # Entry point for python -m src│   ├── core/                   # Core analysis logic
+
+pytest --cov=src --cov-report=html
 
 │   ├── cli/                    # Command-line interface (typer)│   │   ├── analyzer.py         # Main orchestrator
 
-│   ├── core/                   # Core analysis logic│   │   ├── metrics.py          # Bombing metrics calculator
+# Specific test file
+
+pytest tests/unit/test_metrics.py -v│   ├── core/                   # Core analysis logic│   │   ├── metrics.py          # Bombing metrics calculator
+
+```
 
 │   │   ├── analyzer.py         # Main orchestrator│   │   ├── models.py           # Data models
 
+### Code Quality
+
 │   │   ├── metrics.py          # Bombing metrics calculator│   │   └── statistics.py       # Statistical utilities
 
-│   │   ├── models.py           # Data models│   ├── exporters/              # Export formats
+```bash
+
+# Lint and auto-fix│   │   ├── models.py           # Data models│   ├── exporters/              # Export formats
+
+ruff check --fix
 
 │   │   └── statistics.py       # Statistical utilities│   │   ├── excel.py
 
-│   ├── exporters/              # Export formats (excel, json, csv, html)│   │   ├── json_export.py
+# Type checking
+
+mypy src│   ├── exporters/              # Export formats (excel, json, csv, html)│   │   ├── json_export.py
+
+```
 
 │   ├── platforms/              # Platform adapters│   │   ├── csv_export.py
 
+## Contributing
+
 │   │   ├── base.py             # Abstract interface│   │   └── html_export.py
+
+Contributions are welcome! Please follow these guidelines:
 
 │   │   └── myanimelist.py      # MAL implementation│   ├── platforms/              # Platform adapters
 
-│   ├── utils/                  # Utilities (cache, config, i18n, logging)│   │   ├── base.py             # Abstract interface
+1. Fork the repository
 
-│   └── visualization/          # Chart generation│   │   └── myanimelist.py      # MAL implementation
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)│   ├── utils/                  # Utilities (cache, config, i18n, logging)│   │   ├── base.py             # Abstract interface
 
-├── tests/│   ├── utils/                  # Utilities
+3. Write tests for your changes
 
-│   ├── unit/                   # Unit tests│   │   ├── cache.py
+4. Ensure all tests pass (`pytest`)│   └── visualization/          # Chart generation│   │   └── myanimelist.py      # MAL implementation
 
-│   └── integration/            # Integration tests│   │   ├── config.py
+5. Ensure code is linted (`ruff check`)
 
-├── output/                     # Generated reports (gitignored)│   │   ├── i18n.py
+6. Commit with conventional messages (`feat: add amazing feature`)├── tests/│   ├── utils/                  # Utilities
 
-├── pyproject.toml│   │   └── logging.py
+7. Push to the branch (`git push origin feature/amazing-feature`)
 
-├── requirements.txt│   └── visualization/          # Chart generation
+8. Open a Pull Request│   ├── unit/                   # Unit tests│   │   ├── cache.py
 
-└── README.md├── tests/
 
-```│   ├── unit/
 
-│   └── integration/
+## Roadmap│   └── integration/            # Integration tests│   │   ├── config.py
 
-## Detection Algorithm├── docs/
+
+
+- [ ] AniList platform support├── output/                     # Generated reports (gitignored)│   │   ├── i18n.py
+
+- [ ] Kitsu platform support
+
+- [ ] Web interface (Streamlit/Gradio)├── pyproject.toml│   │   └── logging.py
+
+- [ ] Docker support
+
+- [ ] Scheduled analysis with notifications├── requirements.txt│   └── visualization/          # Chart generation
+
+
+
+## License└── README.md├── tests/
+
+
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.```│   ├── unit/
+
+
+
+## Disclaimer│   └── integration/
+
+
+
+This tool is for research and educational purposes only. Always respect MyAnimeList's Terms of Service and rate limits. The detection algorithm provides statistical indicators, not definitive proof of manipulation.## Detection Algorithm├── docs/
+
 
 │   └── METRICS.md              # Metrics documentation
 
