@@ -421,17 +421,22 @@ class EffectSizeCalculator:
         expected: Dict[int, float],
     ) -> float:
         """
-        Calculate Cohen's d effect size.
+        Calculate distribution effect size.
         
         Measures the standardized difference between
-        observed and expected distributions.
+        observed and expected distributions using RMSE
+        normalized by expected standard deviation.
+        
+        Note: Traditional Cohen's d (mean_diff/std) doesn't work
+        for percentage distributions because both sum to 100%,
+        making mean difference always 0.
         
         Args:
-            observed: Observed distribution.
-            expected: Expected distribution.
+            observed: Observed distribution (percentages).
+            expected: Expected distribution (percentages).
         
         Returns:
-            Cohen's d (0.2=small, 0.5=medium, 0.8=large).
+            Effect size (0.2=small, 0.5=medium, 0.8=large).
         """
         differences = []
         
@@ -443,13 +448,17 @@ class EffectSizeCalculator:
         if not differences:
             return 0.0
         
-        mean_diff = np.mean(differences)
-        std_diff = np.std(differences)
+        # Use RMSE (Root Mean Square Error) normalized by expected std
+        # This measures the magnitude of deviations, not just mean
+        rmse = np.sqrt(np.mean(np.square(differences)))
+        expected_std = np.std(list(expected.values()))
         
-        if std_diff == 0:
-            return abs(mean_diff)
+        if expected_std == 0:
+            return rmse / 10.0  # Normalize by max possible
         
-        return abs(mean_diff) / std_diff
+        # Normalize RMSE by expected std to get effect size
+        # Scale factor to align with Cohen's d interpretation
+        return rmse / expected_std
     
     @staticmethod
     def interpret_cohens_d(d: float) -> str:
