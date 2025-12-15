@@ -67,7 +67,7 @@ python -m src analyze --limit 100
 ### Analyze a Single Anime
 
 ```bash
-python -m src single 21    # One Punch Man (by MAL ID)
+python -m src single 30276    # One Punch Man (by MAL ID)
 ```
 
 ### Compare Multiple Anime
@@ -134,7 +134,7 @@ python -m src single ANIME_ID [OPTIONS]
 **Examples:**
 ```bash
 python -m src single 52991    # Frieren
-python -m src single 21 -v    # One Punch Man with verbose output
+python -m src single 30276 -v # One Punch Man with verbose output
 ```
 
 ### `compare`
@@ -153,7 +153,7 @@ python -m src compare IDS [OPTIONS]
 **Examples:**
 ```bash
 python -m src compare 52991,57555,5114
-python -m src compare 21,1735,38000
+python -m src compare 30276,1735,38000
 ```
 
 ### `version`

@@ -325,8 +325,15 @@ class MyAnimeListPlatform(AnimePlatform):
     async def get_anime_stats(
         self,
         anime_id: int,
+        url_slug: Optional[str] = None,
     ) -> Optional[AnimeData]:
-        """Get detailed stats including score distribution."""
+        """Get detailed stats including score distribution.
+        
+        Args:
+            anime_id: The MAL anime ID.
+            url_slug: Optional URL slug (e.g., 'One_Punch_Man'). If not provided,
+                     will be fetched from the main anime page.
+        """
         # Check cache
         cache_key = f"stats_{anime_id}"
         if self._cache and self._cache.has(cache_key):
@@ -335,11 +342,33 @@ class MyAnimeListPlatform(AnimePlatform):
                 logger.debug(f"Cache hit for anime {anime_id}")
                 return AnimeData.from_dict(cached)
         
-        # Fetch stats page - use simple URL format without title slug
-        url = f"{self.BASE_URL}/anime/{anime_id}/stats"
-        
         try:
-            html = await self._make_request(url)
+            # If no URL slug provided, we need to get it from the main page
+            # MAL requires the full URL with title slug for stats page
+            if not url_slug:
+                # First fetch the main anime page to get the canonical URL
+                main_url = f"{self.BASE_URL}/anime/{anime_id}"
+                main_html = await self._make_request(main_url)
+                soup = BeautifulSoup(main_html, 'lxml')
+                
+                # Get canonical URL or og:url which includes the slug
+                canonical = soup.find('link', rel='canonical')
+                if canonical and canonical.get('href'):
+                    anime_url = canonical.get('href')
+                else:
+                    # Fallback: try og:url
+                    og_url = soup.find('meta', property='og:url')
+                    if og_url and og_url.get('content'):
+                        anime_url = og_url.get('content')
+                    else:
+                        # Last resort: use the simple URL
+                        anime_url = main_url
+                
+                stats_url = anime_url.rstrip('/') + '/stats'
+            else:
+                stats_url = f"{self.BASE_URL}/anime/{anime_id}/{url_slug}/stats"
+            
+            html = await self._make_request(stats_url)
             anime_data = self._parse_stats_page(html, anime_id)
             
             # Cache the result
