@@ -104,8 +104,10 @@ class MetricsCalculator:
         adjusted_score = bombing_score * context.get_total_adjustment()
         adjusted_score = min(100, max(0, adjusted_score))
         
-        # Classification (with z-score override for extreme cases)
-        suspicion_level = self._classify_level(bombing_score, ones_zscore, ones_pct)
+        # Classification (with z-score and spike ratio overrides for extreme cases)
+        suspicion_level = self._classify_level(
+            bombing_score, ones_zscore, ones_pct, spike_ratio
+        )
         
         # Severity
         severity = self._calculate_severity(
@@ -235,17 +237,19 @@ class MetricsCalculator:
         score: float,
         ones_zscore: float = 0.0,
         ones_pct: float = 0.0,
+        spike_ratio: float = 0.0,
     ) -> SuspicionLevel:
         """
         Classify bombing score into suspicion level.
         
-        Applies z-score overrides for extreme statistical anomalies
+        Applies overrides for extreme statistical anomalies
         that may not be captured by the composite score alone.
         
         Args:
             score: Composite bombing score.
             ones_zscore: Z-score of ones percentage.
             ones_pct: Actual ones percentage.
+            spike_ratio: Ratio of 1-votes to 2-votes.
         
         Returns:
             Suspicion level classification.
@@ -262,6 +266,15 @@ class MetricsCalculator:
         elif ones_zscore >= 6 and ones_pct >= 3.0:
             # High z-score + substantial ones percentage = suspicious
             return SuspicionLevel.HIGH
+        
+        # Spike ratio override: extreme 1:2 vote imbalance
+        # Natural distributions have 1s and 2s in similar proportions
+        # Ratio > 10 is extremely unnatural and indicates coordinated 1-bombing
+        if spike_ratio >= 10.0:
+            return SuspicionLevel.HIGH
+        elif spike_ratio >= 6.0 and ones_pct >= 1.5:
+            # High spike ratio + notable ones = suspicious
+            return SuspicionLevel.MEDIUM
         
         # Standard threshold-based classification
         if score >= thresholds.critical:
