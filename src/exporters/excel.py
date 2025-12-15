@@ -6,13 +6,11 @@ Export analysis results to Excel format with formatting and charts.
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.core.analyzer import AnalysisResult
@@ -367,7 +365,7 @@ class ExcelExporter(BaseExporter):
                         cell_length = len(str(cell.value))
                         if cell_length > max_length:
                             max_length = cell_length
-                except:
+                except (TypeError, AttributeError):
                     pass
             
             # Set width with some padding

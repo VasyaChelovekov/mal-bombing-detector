@@ -6,7 +6,6 @@ Export analysis results to interactive HTML format.
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from src.core.analyzer import AnalysisResult
 from src.core.models import SuspicionLevel

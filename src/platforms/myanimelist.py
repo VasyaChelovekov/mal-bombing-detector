@@ -16,16 +16,14 @@ from typing import Dict, List, Optional
 import aiohttp
 from bs4 import BeautifulSoup
 
-from ..core.models import AnimeData, ContentType, ScoreDistribution
+from ..core.models import AnimeData, ScoreDistribution
 from ..utils.cache import FileCache, get_cache
 from ..utils.config import get_config
 from ..utils.logging import get_logger
 from .base import (
     AnimePlatform,
     NotFoundError,
-    ParseError,
     PlatformError,
-    RateLimitError,
 )
 
 

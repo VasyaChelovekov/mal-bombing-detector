@@ -12,12 +12,11 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, Generic, Optional, TypeVar
 
-from .config import get_config, ROOT_DIR
+from .config import get_config
 
 
 T = TypeVar('T')

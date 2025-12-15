@@ -12,7 +12,6 @@ Provides multiple commands for analyzing anime review bombing:
 from __future__ import annotations
 
 import asyncio
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
@@ -26,12 +25,11 @@ from ..core import (
     AnimeData,
     AnalysisResult,
     BombingAnalyzer,
-    ReviewBombingMetrics,
     SuspicionLevel,
 )
 from ..exporters import get_exporter
 from ..platforms import get_platform, AnimePlatform
-from ..utils import get_config, get_logger, reload_config, set_language, t
+from ..utils import get_logger, reload_config, set_language
 from ..utils.config import ExportConfig
 
 

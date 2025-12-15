@@ -15,7 +15,7 @@ from src.core.analyzer import AnalysisResult
 from src.core.models import BombingSeverity
 from src.utils.config import OutputConfig
 from src.utils.i18n import I18nManager
-from src.visualization.themes import ColorPalette, Theme, get_theme
+from src.visualization.themes import Theme, get_theme
 
 
 class ChartGenerator:
@@ -133,7 +133,7 @@ class ChartGenerator:
             colors=colors,
             autopct=lambda pct: f'{pct:.1f}%\n({int(pct/100*sum(sizes))})',
             startangle=90,
-            explode=[0.05 if l in ['critical', 'high'] else 0 for l in labels]
+            explode=[0.05 if label in ['critical', 'high'] else 0 for label in labels]
         )
         
         ax.set_title(
@@ -479,7 +479,6 @@ class ChartGenerator:
         Returns:
             Path to generated chart
         """
-        import pandas as pd
         
         # Sort by rank
         sorted_results = sorted(results, key=lambda r: r.anime.rank or 999)[:50]

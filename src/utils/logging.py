@@ -14,10 +14,9 @@ import logging
 import sys
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
-from pathlib import Path
 from typing import Optional
 
-from .config import get_config, ROOT_DIR
+from .config import get_config
 
 
 class ColoredFormatter(logging.Formatter):

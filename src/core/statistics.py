@@ -12,7 +12,7 @@ This module provides statistical functions used in bombing detection:
 from __future__ import annotations
 
 import math
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 from scipy import stats as scipy_stats

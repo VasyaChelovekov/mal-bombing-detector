@@ -8,7 +8,7 @@ anime score distributions to detect potential review bombing.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from ..utils.config import get_config
 from ..utils.logging import get_logger
@@ -73,7 +73,6 @@ class MetricsCalculator:
             raise ValueError(f"No distribution data for anime {anime.mal_id}")
         
         distribution = anime.distribution.percentages
-        vote_counts = anime.distribution.vote_counts
         total_votes = anime.distribution.total_votes
         
         ones_pct = distribution.get(1, 0)
