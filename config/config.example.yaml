@@ -24,9 +24,20 @@ platforms:
 
 # Scraping settings
 scraping:
-  request_delay: 2.0  # seconds between requests
+  # Adaptive delay settings (auto-adjusts based on server response)
+  adaptive_delay:
+    enabled: true           # Use adaptive delay instead of fixed
+    min_delay: 0.5          # Minimum delay between requests (seconds)
+    max_delay: 5.0          # Maximum delay after rate limiting (seconds)
+    success_threshold: 5    # Decrease delay after N consecutive successes
+    decrease_factor: 0.8    # Multiply delay by this on success streak
+    increase_factor: 1.5    # Multiply delay by this on error
+    rate_limit_factor: 2.0  # Multiply delay by this on 429 response
+  
+  # Fixed delay (used if adaptive_delay.enabled is false)
+  request_delay: 1.0  # seconds between requests
   max_retries: 3
-  retry_delay: 5.0  # seconds
+  retry_delay: 5.0  # seconds before retry after failure
   timeout: 30  # seconds
   concurrent_requests: 1  # increase for async mode
   respect_robots_txt: true

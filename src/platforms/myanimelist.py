@@ -68,12 +68,17 @@ class MyAnimeListPlatform(AnimePlatform):
         self._owns_session = session is None
         self._last_request_time = 0.0
         
-        # Adaptive delay settings
-        self._min_delay = 0.5  # Minimum delay between requests
-        self._max_delay = 5.0  # Maximum delay (after rate limiting)
-        self._current_delay = self._min_delay  # Start with minimum
-        self._success_streak = 0  # Consecutive successful requests
-        self._delay_decrease_threshold = 5  # Decrease delay after N successes
+        # Adaptive delay settings from config
+        adaptive = self.config.scraping.adaptive_delay
+        self._adaptive_enabled = adaptive.enabled
+        self._min_delay = adaptive.min_delay
+        self._max_delay = adaptive.max_delay
+        self._current_delay = self._min_delay if adaptive.enabled else self.config.scraping.request_delay
+        self._success_streak = 0
+        self._delay_decrease_threshold = adaptive.success_threshold
+        self._decrease_factor = adaptive.decrease_factor
+        self._increase_factor = adaptive.increase_factor
+        self._rate_limit_factor = adaptive.rate_limit_factor
         
         # Cache
         self._use_cache = use_cache and self.config.cache.enabled
@@ -144,28 +149,34 @@ class MyAnimeListPlatform(AnimePlatform):
     
     def _on_request_success(self) -> None:
         """Called after successful request to potentially decrease delay."""
+        if not self._adaptive_enabled:
+            return
+            
         self._success_streak += 1
         
         # Decrease delay after several consecutive successes
         if self._success_streak >= self._delay_decrease_threshold:
             self._current_delay = max(
                 self._min_delay,
-                self._current_delay * 0.8  # Decrease by 20%
+                self._current_delay * self._decrease_factor
             )
             self._success_streak = 0
             logger.debug(f"Decreased delay to {self._current_delay:.2f}s")
     
     def _on_request_error(self, is_rate_limit: bool = False) -> None:
         """Called after failed request to increase delay."""
+        if not self._adaptive_enabled:
+            return
+            
         self._success_streak = 0
         
         if is_rate_limit:
-            # Double delay on rate limiting
-            self._current_delay = min(self._max_delay, self._current_delay * 2)
+            # Multiply delay on rate limiting
+            self._current_delay = min(self._max_delay, self._current_delay * self._rate_limit_factor)
             logger.info(f"Rate limited! Increased delay to {self._current_delay:.2f}s")
         else:
-            # Slight increase on other errors
-            self._current_delay = min(self._max_delay, self._current_delay * 1.5)
+            # Increase on other errors
+            self._current_delay = min(self._max_delay, self._current_delay * self._increase_factor)
             logger.debug(f"Request error. Increased delay to {self._current_delay:.2f}s")
     
     async def _make_request(

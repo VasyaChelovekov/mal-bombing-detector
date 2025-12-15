@@ -26,15 +26,33 @@ EXAMPLE_CONFIG_PATH = CONFIG_DIR / "config.example.yaml"
 
 
 @dataclass
+class AdaptiveDelayConfig:
+    """Configuration for adaptive rate limiting."""
+    
+    enabled: bool = True
+    min_delay: float = 0.5
+    max_delay: float = 5.0
+    success_threshold: int = 5
+    decrease_factor: float = 0.8
+    increase_factor: float = 1.5
+    rate_limit_factor: float = 2.0
+
+
+@dataclass
 class ScrapingConfig:
     """Configuration for web scraping behavior."""
     
-    request_delay: float = 2.0
+    request_delay: float = 1.0
     max_retries: int = 3
     retry_delay: float = 5.0
     timeout: int = 30
     concurrent_requests: int = 1
     respect_robots_txt: bool = True
+    adaptive_delay: AdaptiveDelayConfig = None
+    
+    def __post_init__(self):
+        if self.adaptive_delay is None:
+            self.adaptive_delay = AdaptiveDelayConfig()
 
 
 @dataclass
@@ -407,13 +425,26 @@ class ConfigLoader:
         
         # Load scraping config
         scraping_data = data.get('scraping', {})
+        adaptive_data = scraping_data.get('adaptive_delay', {})
+        
+        adaptive_delay = AdaptiveDelayConfig(
+            enabled=adaptive_data.get('enabled', True),
+            min_delay=adaptive_data.get('min_delay', 0.5),
+            max_delay=adaptive_data.get('max_delay', 5.0),
+            success_threshold=adaptive_data.get('success_threshold', 5),
+            decrease_factor=adaptive_data.get('decrease_factor', 0.8),
+            increase_factor=adaptive_data.get('increase_factor', 1.5),
+            rate_limit_factor=adaptive_data.get('rate_limit_factor', 2.0),
+        )
+        
         config.scraping = ScrapingConfig(
-            request_delay=scraping_data.get('request_delay', 2.0),
+            request_delay=scraping_data.get('request_delay', 1.0),
             max_retries=scraping_data.get('max_retries', 3),
             retry_delay=scraping_data.get('retry_delay', 5.0),
             timeout=scraping_data.get('timeout', 30),
             concurrent_requests=scraping_data.get('concurrent_requests', 1),
             respect_robots_txt=scraping_data.get('respect_robots_txt', True),
+            adaptive_delay=adaptive_delay,
         )
         
         # Load cache config
