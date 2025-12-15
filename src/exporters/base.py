@@ -10,7 +10,7 @@ from typing import Any
 
 from src.core.analyzer import AnalysisResult
 from src.utils.config import OutputConfig
-from src.utils.i18n import I18nManager
+from src.utils.i18n import I18n
 
 
 class BaseExporter(ABC):
@@ -19,7 +19,7 @@ class BaseExporter(ABC):
     def __init__(
         self,
         output_config: OutputConfig,
-        i18n: I18nManager | None = None
+        i18n: I18n | None = None
     ):
         """
         Initialize exporter.
@@ -29,7 +29,7 @@ class BaseExporter(ABC):
             i18n: Internationalization manager
         """
         self.output_config = output_config
-        self.i18n = i18n or I18nManager()
+        self.i18n = i18n or I18n()
     
     @property
     @abstractmethod

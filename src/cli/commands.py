@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
@@ -28,8 +29,10 @@ from ..core import (
     ReviewBombingMetrics,
     SuspicionLevel,
 )
+from ..exporters import get_exporter
 from ..platforms import get_platform, AnimePlatform
 from ..utils import get_config, get_logger, reload_config, set_language, t
+from ..utils.config import ExportConfig
 
 
 # Initialize
@@ -185,9 +188,9 @@ def analyze(
         help="Output directory for reports",
     ),
     format: str = typer.Option(
-        "excel",
+        "excel,json",
         "--format", "-f",
-        help="Export format (excel, csv, json, html)",
+        help="Export format(s), comma-separated (excel, csv, json, html)",
     ),
     no_cache: bool = typer.Option(
         False,
@@ -207,7 +210,7 @@ def analyze(
     language: str = typer.Option(
         "en",
         "--lang", "-l",
-        help="Language for output (en, ru)",
+        help="Language for output (en, ru, es, ja, zh, de, fr)",
     ),
     verbose: bool = typer.Option(
         False,
@@ -222,8 +225,10 @@ def analyze(
     analyzes their score distributions for signs of vote
     manipulation.
     
-    Example:
-        mal-analyzer analyze --limit 100 --platform myanimelist
+    Examples:
+        mal-analyzer analyze -n 100
+        mal-analyzer analyze --limit 50 --format excel,json
+        mal-analyzer analyze -n 100 -o ./reports -f json
     """
     # Setup
     if config_file:
@@ -246,10 +251,51 @@ def analyze(
         # Print results
         print_results(results)
         
-        # Export (TODO: implement exporters)
+        # Export to requested formats
+        console.print()
+        console.print("[bold]Exporting results...[/bold]")
+        
+        # Determine output directory
+        output_dir = output or Path("output/reports")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create export config
+        export_config = ExportConfig(
+            output_directory=str(output_dir),
+        )
+        
+        # Export to each format
+        formats = [f.strip().lower() for f in format.split(",")]
+        exported_files = []
+        
+        for fmt in formats:
+            try:
+                exporter = get_exporter(fmt, export_config)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"top_{limit}_analysis_{timestamp}"
+                filepath = output_dir / f"{filename}.{exporter.file_extension}"
+                
+                exporter.export(results, filepath)
+                exported_files.append(filepath)
+                console.print(f"   ✅ {fmt.upper()}: {filepath}")
+            except Exception as e:
+                console.print(f"   ❌ {fmt.upper()}: {e}")
+                if verbose:
+                    console.print_exception()
+        
         console.print()
         console.print("[green]✅ Analysis complete![/green]")
         console.print(f"   Analyzed: {results.summary.total_analyzed} anime")
+        console.print(f"   🔴 Critical: {results.summary.critical_count}")
+        console.print(f"   🟠 High: {results.summary.high_count}")
+        console.print(f"   🟡 Medium: {results.summary.medium_count}")
+        console.print(f"   🟢 Low: {results.summary.low_count}")
+        
+        if exported_files:
+            console.print()
+            console.print("[bold]Output files:[/bold]")
+            for f in exported_files:
+                console.print(f"   📄 {f}")
         
     except Exception as e:
         console.print(f"[red]❌ Error: {e}[/red]")

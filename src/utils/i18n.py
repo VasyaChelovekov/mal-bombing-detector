@@ -216,3 +216,7 @@ def set_language(language: str) -> None:
         language: Language code.
     """
     get_i18n().set_language(language)
+
+
+# Alias for backward compatibility
+I18nManager = I18n

@@ -16,7 +16,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.core.analyzer import AnalysisResult
-from src.core.models import BombingSeverity
+from src.core.models import SeverityLevel, SuspicionLevel
 from src.exporters.base import BaseExporter
 from src.utils.config import OutputConfig
 from src.utils.i18n import I18nManager
@@ -27,12 +27,19 @@ class ExcelExporter(BaseExporter):
     
     # Color schemes for severity levels
     SEVERITY_COLORS = {
-        BombingSeverity.CRITICAL: "FF0000",  # Red
-        BombingSeverity.HIGH: "FF6600",      # Orange
-        BombingSeverity.MODERATE: "FFCC00",  # Yellow
-        BombingSeverity.LOW: "99CC00",       # Light green
-        BombingSeverity.MINIMAL: "00CC00",   # Green
-        BombingSeverity.NONE: "FFFFFF",      # White
+        SeverityLevel.EXTREME: "FF0000",   # Red
+        SeverityLevel.SEVERE: "FF6600",    # Orange
+        SeverityLevel.MODERATE: "FFCC00",  # Yellow
+        SeverityLevel.LIGHT: "99CC00",     # Light green
+        SeverityLevel.NONE: "00CC00",      # Green
+    }
+    
+    # Color schemes for suspicion levels
+    SUSPICION_COLORS = {
+        SuspicionLevel.CRITICAL: "FF0000",  # Red
+        SuspicionLevel.HIGH: "FF6600",      # Orange
+        SuspicionLevel.MEDIUM: "FFCC00",    # Yellow
+        SuspicionLevel.LOW: "00CC00",       # Green
     }
     
     # Header style
@@ -123,22 +130,25 @@ class ExcelExporter(BaseExporter):
         """Create summary sheet with all anime."""
         ws = wb.create_sheet(self._translate("export.sheets.summary"))
         
+        # Aggregate all metrics from all results
+        all_metrics = []
+        for r in results:
+            all_metrics.extend(r.metrics)
+        
         # Prepare data
         data = []
-        for r in results:
-            anime = r.anime
-            metrics = r.metrics
-            
+        for m in all_metrics:
             data.append({
-                self._translate("export.columns.rank"): anime.rank,
-                self._translate("export.columns.title"): anime.title,
-                self._translate("export.columns.score"): anime.score,
-                self._translate("export.columns.members"): anime.members,
-                self._translate("export.columns.voters"): anime.voters,
-                self._translate("export.columns.suspicion_score"): round(metrics.suspicion_score, 2),
-                self._translate("export.columns.severity"): metrics.severity.value,
-                self._translate("export.columns.ones_percent"): round(metrics.ones_percent, 2),
-                self._translate("export.columns.tens_percent"): round(metrics.tens_percent, 2),
+                "Rank": m.bombing_rank,
+                "Title": m.title,
+                "MAL ID": m.mal_id,
+                "Bombing Score": round(m.bombing_score, 2),
+                "Level": m.suspicion_level.value,
+                "Ones %": round(m.ones_percentage, 2),
+                "Tens %": round(m.tens_percentage, 2),
+                "Ones Z-Score": round(m.ones_zscore, 2),
+                "Spike Ratio": round(m.spike_ratio, 2),
+                "Effect Size": round(m.distribution_effect_size, 3),
             })
         
         df = pd.DataFrame(data)
@@ -147,10 +157,8 @@ class ExcelExporter(BaseExporter):
         self._write_dataframe(ws, df)
         
         # Apply severity colors
-        severity_col = self._get_column_index(
-            df, self._translate("export.columns.severity")
-        )
-        self._apply_severity_colors(ws, severity_col, results)
+        level_col = self._get_column_index(df, "Level")
+        self._apply_severity_colors(ws, level_col, all_metrics)
         
         # Adjust column widths
         self._auto_fit_columns(ws)
@@ -165,31 +173,35 @@ class ExcelExporter(BaseExporter):
         """Create detailed metrics sheet."""
         ws = wb.create_sheet(self._translate("export.sheets.metrics"))
         
+        # Aggregate all metrics
+        all_metrics = []
+        for r in results:
+            all_metrics.extend(r.metrics)
+        
         # Prepare data with all metrics
         data = []
-        for r in results:
-            anime = r.anime
-            metrics = r.metrics
-            
+        for m in all_metrics:
             row = {
-                self._translate("export.columns.title"): anime.title,
-                self._translate("export.columns.suspicion_score"): round(metrics.suspicion_score, 2),
-                "Ones Z-Score": round(metrics.ones_zscore, 2),
-                "Spike Ratio": round(metrics.spike_ratio, 2),
-                "Distribution Effect Size": round(metrics.distribution_effect_size, 3),
-                "Entropy Deficit": round(metrics.entropy_deficit, 3),
-                "Bimodality Index": round(metrics.bimodality_index, 3),
+                "Title": m.title,
+                "Bombing Score": round(m.bombing_score, 2),
+                "Ones Z-Score": round(m.ones_zscore, 2),
+                "Spike Ratio": round(m.spike_ratio, 2),
+                "Effect Size": round(m.distribution_effect_size, 3),
+                "Entropy Deficit": round(m.entropy_deficit, 3),
+                "Bimodality": round(m.bimodality_coefficient, 3),
             }
             
-            # Add component scores
-            for key, value in metrics.component_scores.items():
-                row[f"Component: {key}"] = round(value, 3)
+            # Add metric breakdown
+            for key, value in m.metric_breakdown.items():
+                row[f"Score: {key}"] = round(value, 3)
             
             data.append(row)
         
         df = pd.DataFrame(data)
         self._write_dataframe(ws, df)
         self._auto_fit_columns(ws)
+        
+        return ws
         
         return ws
     
@@ -202,9 +214,8 @@ class ExcelExporter(BaseExporter):
         ws = wb.create_sheet(self._translate("export.sheets.distribution"))
         
         # Headers
-        headers = [self._translate("export.columns.title")]
-        headers.extend([f"Score {i}" for i in range(1, 11)])
-        headers.append("Total")
+        headers = ["Title", "MAL ID"]
+        headers.extend([f"Score {i} %" for i in range(1, 11)])
         
         for col, header in enumerate(headers, 1):
             cell = ws.cell(row=1, column=col, value=header)
@@ -213,25 +224,20 @@ class ExcelExporter(BaseExporter):
             cell.alignment = self.HEADER_ALIGNMENT
             cell.border = self.THIN_BORDER
         
-        # Data rows
-        for row_idx, r in enumerate(results, 2):
-            anime = r.anime
-            distribution = anime.score_distribution
+        # Aggregate all metrics
+        all_metrics = []
+        for r in results:
+            all_metrics.extend(r.metrics)
+        
+        # Note: We don't have distribution data in ReviewBombingMetrics
+        # Just show ones_percentage and tens_percentage
+        for row_idx, m in enumerate(all_metrics, 2):
+            ws.cell(row=row_idx, column=1, value=m.title).border = self.THIN_BORDER
+            ws.cell(row=row_idx, column=2, value=m.mal_id).border = self.THIN_BORDER
             
-            # Title
-            ws.cell(row=row_idx, column=1, value=anime.title).border = self.THIN_BORDER
-            
-            # Distribution values
-            total = 0
-            for score in range(1, 11):
-                count = distribution.votes.get(score, 0)
-                total += count
-                cell = ws.cell(row=row_idx, column=score + 1, value=count)
-                cell.border = self.THIN_BORDER
-                cell.number_format = "#,##0"
-            
-            # Total
-            ws.cell(row=row_idx, column=12, value=total).border = self.THIN_BORDER
+            # We only have ones% and tens%
+            ws.cell(row=row_idx, column=3, value=round(m.ones_percentage, 2)).border = self.THIN_BORDER
+            ws.cell(row=row_idx, column=12, value=round(m.tens_percentage, 2)).border = self.THIN_BORDER
         
         self._auto_fit_columns(ws)
         
@@ -246,24 +252,29 @@ class ExcelExporter(BaseExporter):
         ws = wb.create_sheet(self._translate("export.sheets.charts"))
         
         # Only create chart for top suspicious anime
-        suspicious = [r for r in results if r.metrics.severity in [
-            BombingSeverity.CRITICAL,
-            BombingSeverity.HIGH,
-            BombingSeverity.MODERATE
-        ]][:5]
+        suspicious = []
+        for r in results:
+            for m in r.metrics:
+                if m.suspicion_level in [
+                    SuspicionLevel.CRITICAL,
+                    SuspicionLevel.HIGH,
+                    SuspicionLevel.MEDIUM
+                ]:
+                    suspicious.append(m)
+        suspicious = suspicious[:5]
         
         if not suspicious:
             ws.cell(row=1, column=1, value="No suspicious anime found for charts")
             return ws
         
         # Prepare chart data
-        ws.cell(row=1, column=1, value="Suspicion Score Comparison")
+        ws.cell(row=1, column=1, value="Bombing Score Comparison")
         ws.cell(row=2, column=1, value="Title")
         ws.cell(row=2, column=2, value="Score")
         
-        for idx, r in enumerate(suspicious, 3):
-            ws.cell(row=idx, column=1, value=r.anime.title[:30])
-            ws.cell(row=idx, column=2, value=r.metrics.suspicion_score)
+        for idx, m in enumerate(suspicious, 3):
+            ws.cell(row=idx, column=1, value=m.title[:30])
+            ws.cell(row=idx, column=2, value=m.bombing_score)
         
         # Create bar chart
         chart = BarChart()
@@ -271,7 +282,7 @@ class ExcelExporter(BaseExporter):
         chart.style = 10
         chart.title = "Top Suspicious Anime"
         chart.x_axis.title = "Anime"
-        chart.y_axis.title = "Suspicion Score"
+        chart.y_axis.title = "Bombing Score"
         
         data = Reference(ws, min_col=2, min_row=2, max_row=2 + len(suspicious))
         categories = Reference(ws, min_col=1, min_row=3, max_row=2 + len(suspicious))
@@ -319,19 +330,27 @@ class ExcelExporter(BaseExporter):
         self,
         ws: Worksheet,
         col_idx: int,
-        results: list[AnalysisResult]
+        metrics_list: list
     ) -> None:
-        """Apply background colors based on severity."""
+        """Apply background colors based on suspicion level."""
         if col_idx < 0:
             return
+        
+        # Map suspicion levels to colors
+        level_colors = {
+            SuspicionLevel.CRITICAL: "FF0000",
+            SuspicionLevel.HIGH: "FF6600",
+            SuspicionLevel.MEDIUM: "FFCC00",
+            SuspicionLevel.LOW: "00CC00",
+        }
             
-        for row_idx, r in enumerate(results, 2):
+        for row_idx, m in enumerate(metrics_list, 2):
             cell = ws.cell(row=row_idx, column=col_idx)
-            color = self.SEVERITY_COLORS.get(r.metrics.severity, "FFFFFF")
+            color = level_colors.get(m.suspicion_level, "FFFFFF")
             cell.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
             
-            # Dark text for light backgrounds
-            if r.metrics.severity in [BombingSeverity.MINIMAL, BombingSeverity.NONE]:
+            # Dark text for light backgrounds (LOW level)
+            if m.suspicion_level == SuspicionLevel.LOW:
                 cell.font = Font(color="000000")
             else:
                 cell.font = Font(color="FFFFFF", bold=True)

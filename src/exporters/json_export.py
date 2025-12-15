@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from src.core.analyzer import AnalysisResult
-from src.core.models import AnimeData, BombingMetrics
+from src.core.models import AnimeData, ReviewBombingMetrics
 from src.exporters.base import BaseExporter
 from src.utils.config import OutputConfig
 from src.utils.i18n import I18nManager
@@ -93,37 +93,46 @@ class JSONExporter(BaseExporter):
             "generator": "MAL Bombing Detector",
             "version": "2.0.0",
             "total_anime": len(results),
-            "language": self.i18n.get_language()
+            "language": self.i18n.language
         }
     
     def _build_summary(self, results: list[AnalysisResult]) -> dict[str, Any]:
         """Build summary statistics."""
-        from src.core.models import BombingSeverity
+        from src.core.models import SuspicionLevel
         
-        severity_counts = {}
-        for severity in BombingSeverity:
-            count = sum(1 for r in results if r.metrics.severity == severity)
-            severity_counts[severity.value] = count
+        # Aggregate all metrics
+        all_metrics = []
+        for r in results:
+            all_metrics.extend(r.metrics)
         
-        suspicion_scores = [r.metrics.suspicion_score for r in results]
+        level_counts = {level.value: 0 for level in SuspicionLevel}
+        for m in all_metrics:
+            level_counts[m.suspicion_level.value] += 1
+        
+        bombing_scores = [m.bombing_score for m in all_metrics]
         
         return {
-            "severity_distribution": severity_counts,
+            "level_distribution": level_counts,
             "statistics": {
-                "avg_suspicion_score": round(sum(suspicion_scores) / len(suspicion_scores), 3) if suspicion_scores else 0,
-                "max_suspicion_score": round(max(suspicion_scores), 3) if suspicion_scores else 0,
-                "min_suspicion_score": round(min(suspicion_scores), 3) if suspicion_scores else 0,
-                "suspicious_count": sum(1 for s in suspicion_scores if s >= 0.5),
-                "highly_suspicious_count": sum(1 for s in suspicion_scores if s >= 0.7)
+                "avg_bombing_score": round(sum(bombing_scores) / len(bombing_scores), 3) if bombing_scores else 0,
+                "max_bombing_score": round(max(bombing_scores), 3) if bombing_scores else 0,
+                "min_bombing_score": round(min(bombing_scores), 3) if bombing_scores else 0,
+                "suspicious_count": sum(1 for s in bombing_scores if s >= 35),
+                "highly_suspicious_count": sum(1 for s in bombing_scores if s >= 55)
             }
         }
     
     def _serialize_result(self, result: AnalysisResult) -> dict[str, Any]:
         """Serialize a single analysis result."""
         return {
-            "anime": self._serialize_anime(result.anime),
-            "metrics": self._serialize_metrics(result.metrics),
-            "analysis_timestamp": result.timestamp.isoformat() if result.timestamp else None
+            "metrics": [self._serialize_metrics(m) for m in result.metrics],
+            "summary": {
+                "total_analyzed": result.summary.total_analyzed,
+                "critical_count": result.summary.critical_count,
+                "high_count": result.summary.high_count,
+                "medium_count": result.summary.medium_count,
+                "low_count": result.summary.low_count,
+            }
         }
     
     def _serialize_anime(self, anime: AnimeData) -> dict[str, Any]:
@@ -146,25 +155,6 @@ class JSONExporter(BaseExporter):
             }
         }
     
-    def _serialize_metrics(self, metrics: BombingMetrics) -> dict[str, Any]:
+    def _serialize_metrics(self, metrics: ReviewBombingMetrics) -> dict[str, Any]:
         """Serialize bombing metrics."""
-        return {
-            "suspicion_score": round(metrics.suspicion_score, 4),
-            "severity": metrics.severity.value,
-            "severity_reason": metrics.severity_reason,
-            "primary_metrics": {
-                "ones_percent": round(metrics.ones_percent, 4),
-                "tens_percent": round(metrics.tens_percent, 4),
-                "ones_zscore": round(metrics.ones_zscore, 4),
-                "spike_ratio": round(metrics.spike_ratio, 4),
-                "distribution_effect_size": round(metrics.distribution_effect_size, 4),
-                "entropy_deficit": round(metrics.entropy_deficit, 4),
-                "bimodality_index": round(metrics.bimodality_index, 4)
-            },
-            "component_scores": {
-                k: round(v, 4) for k, v in metrics.component_scores.items()
-            },
-            "flags": metrics.flags,
-            "confidence": round(metrics.confidence, 4),
-            "is_reliable": metrics.is_reliable
-        }
+        return metrics.to_dict()

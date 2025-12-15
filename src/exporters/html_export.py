@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from src.core.analyzer import AnalysisResult
-from src.core.models import BombingSeverity
+from src.core.models import SuspicionLevel
 from src.exporters.base import BaseExporter
 from src.utils.config import OutputConfig
 from src.utils.i18n import I18nManager
@@ -18,14 +18,12 @@ from src.utils.i18n import I18nManager
 class HTMLExporter(BaseExporter):
     """Export analysis results to HTML format."""
     
-    # Severity color classes
-    SEVERITY_CLASSES = {
-        BombingSeverity.CRITICAL: "severity-critical",
-        BombingSeverity.HIGH: "severity-high",
-        BombingSeverity.MODERATE: "severity-moderate",
-        BombingSeverity.LOW: "severity-low",
-        BombingSeverity.MINIMAL: "severity-minimal",
-        BombingSeverity.NONE: "severity-none",
+    # Suspicion level color classes
+    SUSPICION_CLASSES = {
+        SuspicionLevel.CRITICAL: "severity-critical",
+        SuspicionLevel.HIGH: "severity-high",
+        SuspicionLevel.MEDIUM: "severity-moderate",
+        SuspicionLevel.LOW: "severity-low",
     }
     
     def __init__(
@@ -303,13 +301,19 @@ class HTMLExporter(BaseExporter):
     
     def _build_summary_html(self, results: list[AnalysisResult]) -> str:
         """Build summary section HTML."""
-        total = len(results)
+        # Aggregate all metrics from all results
+        all_metrics = []
+        for r in results:
+            all_metrics.extend(r.metrics)
         
-        severity_counts = {}
-        for severity in BombingSeverity:
-            severity_counts[severity] = sum(1 for r in results if r.metrics.severity == severity)
+        total = len(all_metrics)
         
-        avg_score = sum(r.metrics.suspicion_score for r in results) / total if total > 0 else 0
+        # Count by suspicion level
+        level_counts = {level: 0 for level in SuspicionLevel}
+        for m in all_metrics:
+            level_counts[m.suspicion_level] += 1
+        
+        avg_score = sum(m.bombing_score for m in all_metrics) / total if total > 0 else 0
         
         return f"""<div class="summary-grid">
     <div class="summary-card">
@@ -317,20 +321,20 @@ class HTMLExporter(BaseExporter):
         <div class="label">Total Analyzed</div>
     </div>
     <div class="summary-card">
-        <div class="value" style="color: var(--color-critical);">{severity_counts[BombingSeverity.CRITICAL]}</div>
+        <div class="value" style="color: var(--color-critical);">{level_counts[SuspicionLevel.CRITICAL]}</div>
         <div class="label">Critical</div>
     </div>
     <div class="summary-card">
-        <div class="value" style="color: var(--color-high);">{severity_counts[BombingSeverity.HIGH]}</div>
+        <div class="value" style="color: var(--color-high);">{level_counts[SuspicionLevel.HIGH]}</div>
         <div class="label">High</div>
     </div>
     <div class="summary-card">
-        <div class="value" style="color: var(--color-moderate);">{severity_counts[BombingSeverity.MODERATE]}</div>
-        <div class="label">Moderate</div>
+        <div class="value" style="color: var(--color-moderate);">{level_counts[SuspicionLevel.MEDIUM]}</div>
+        <div class="label">Medium</div>
     </div>
     <div class="summary-card">
         <div class="value">{avg_score:.2f}</div>
-        <div class="label">Avg Suspicion Score</div>
+        <div class="label">Avg Bombing Score</div>
     </div>
 </div>"""
     
@@ -390,27 +394,31 @@ class HTMLExporter(BaseExporter):
     
     def _get_chart_init_scripts(self, results: list[AnalysisResult]) -> str:
         """Get Chart.js initialization scripts."""
-        # Severity distribution data
-        severity_counts = {s.value: 0 for s in BombingSeverity}
+        # Aggregate all metrics
+        all_metrics = []
         for r in results:
-            severity_counts[r.metrics.severity.value] += 1
+            all_metrics.extend(r.metrics)
+        
+        # Suspicion level distribution data
+        level_counts = {level.value: 0 for level in SuspicionLevel}
+        for m in all_metrics:
+            level_counts[m.suspicion_level.value] += 1
         
         # Top 10 suspicious
-        top_suspicious = sorted(results, key=lambda r: r.metrics.suspicion_score, reverse=True)[:10]
-        top_labels = [r.anime.title[:25] for r in top_suspicious]
-        top_values = [r.metrics.suspicion_score for r in top_suspicious]
+        top_suspicious = sorted(all_metrics, key=lambda m: m.bombing_score, reverse=True)[:10]
+        top_labels = [m.title[:25] for m in top_suspicious]
+        top_values = [m.bombing_score for m in top_suspicious]
         
         return f"""<script>
-// Severity Distribution Chart
+// Suspicion Level Distribution Chart
 new Chart(document.getElementById('severityChart'), {{
     type: 'doughnut',
     data: {{
-        labels: {list(severity_counts.keys())},
+        labels: {list(level_counts.keys())},
         datasets: [{{
-            data: {list(severity_counts.values())},
+            data: {list(level_counts.values())},
             backgroundColor: [
-                '#dc3545', '#fd7e14', '#ffc107', 
-                '#28a745', '#20c997', '#6c757d'
+                '#dc3545', '#fd7e14', '#ffc107', '#28a745'
             ]
         }}]
     }},
@@ -419,7 +427,7 @@ new Chart(document.getElementById('severityChart'), {{
         plugins: {{
             title: {{
                 display: true,
-                text: 'Severity Distribution'
+                text: 'Suspicion Level Distribution'
             }}
         }}
     }}
@@ -431,7 +439,7 @@ new Chart(document.getElementById('suspicionChart'), {{
     data: {{
         labels: {top_labels},
         datasets: [{{
-            label: 'Suspicion Score',
+            label: 'Bombing Score',
             data: {top_values},
             backgroundColor: '#667eea'
         }}]
