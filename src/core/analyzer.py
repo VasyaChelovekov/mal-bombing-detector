@@ -111,6 +111,16 @@ class BombingAnalyzer:
                 if anime.distribution is None:
                     logger.warning(f"No distribution for {anime.mal_id}, skipping")
                     skipped_count += 1
+                    failures.append(
+                        FailureRecord.from_message(
+                            mal_id=anime.mal_id,
+                            title=anime.title,
+                            url=anime.url,
+                            stage=FailureStage.ANALYZE,
+                            error_type="Skipped",
+                            message="No score distribution data available",
+                        )
+                    )
                     continue
 
                 # Skip if too few votes
@@ -120,6 +130,16 @@ class BombingAnalyzer:
                 ):
                     logger.debug(f"Too few votes for {anime.mal_id}, skipping")
                     skipped_count += 1
+                    failures.append(
+                        FailureRecord.from_message(
+                            mal_id=anime.mal_id,
+                            title=anime.title,
+                            url=anime.url,
+                            stage=FailureStage.ANALYZE,
+                            error_type="Skipped",
+                            message=f"Insufficient votes ({anime.distribution.total_votes} < {self.config.analysis.min_votes_threshold})",
+                        )
+                    )
                     continue
 
                 metrics = self.analyze_single(anime)

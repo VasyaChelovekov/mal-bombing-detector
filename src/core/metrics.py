@@ -368,16 +368,36 @@ class MetricsCalculator:
         else:
             p_value = 0.50
 
-        # Estimate fake votes
+        # Estimate fake votes using both absolute and statistical methods
         category = self.zscore_calc.get_rating_category(anime_score)
         expected = self.config.analysis.expected_ones_by_rating.get(category)
 
+        expected_mean = expected.mean if expected else 0.5
         max_natural = expected.max_natural if expected else 2.0
+        expected_std = expected.std if expected else 0.3
+
+        # Method 1: Excess over max natural (conservative)
         excess_ones_pct = max(0, ones_pct - max_natural)
-        estimated_fake_votes = int((excess_ones_pct / 100) * total_votes)
+
+        # Method 2: Statistical excess (uses z-score)
+        # If z-score is significant, estimate excess as (ones_pct - expected_mean)
+        statistical_excess = 0.0
+        if ones_zscore >= 1.96:  # p < 0.05
+            statistical_excess = max(0, ones_pct - expected_mean)
+
+        # Use the higher estimate (less conservative for clear anomalies)
+        effective_excess = max(excess_ones_pct, statistical_excess * 0.5)
+
+        # For high bombing scores with significant z-scores, use minimum estimate
+        # This ensures HIGH/CRITICAL cases always show some impact
+        if bombing_score >= 55 and ones_zscore >= 2.0 and effective_excess == 0:
+            # Minimum estimate: at least half of deviation from mean
+            effective_excess = max(0, (ones_pct - expected_mean) * 0.5)
+
+        estimated_fake_votes = int((effective_excess / 100) * total_votes)
 
         # Rating impact
-        if total_votes > 0:
+        if total_votes > 0 and estimated_fake_votes > 0:
             rating_impact = (estimated_fake_votes * (anime_score - 1)) / total_votes
         else:
             rating_impact = 0.0

@@ -16,7 +16,7 @@ from typing import Dict, List, Optional
 import aiohttp
 from bs4 import BeautifulSoup
 
-from ..core.models import AnimeData, ScoreDistribution
+from ..core.models import AnimeData, ContentType, ScoreDistribution
 from ..utils.cache import FileCache, get_cache
 from ..utils.config import get_config
 from ..utils.logging import get_logger
@@ -448,6 +448,45 @@ class MyAnimeListPlatform(AnimePlatform):
             except ValueError:
                 pass
 
+        # Parse sidebar information (members, type, start year)
+        members = 0
+        content_type = ContentType.UNKNOWN
+        start_year = 0
+
+        # Members count from sidebar (format: "Members: 1,234,567")
+        for spaceit_div in soup.select("div.spaceit_pad"):
+            text = spaceit_div.get_text(strip=True)
+
+            # Members
+            if text.startswith("Members:"):
+                try:
+                    members_text = text.replace("Members:", "").strip()
+                    members = int(members_text.replace(",", ""))
+                except ValueError:
+                    pass
+
+            # Type (TV, Movie, OVA, etc.)
+            elif text.startswith("Type:"):
+                type_text = text.replace("Type:", "").strip().lower()
+                type_mapping = {
+                    "tv": ContentType.TV,
+                    "movie": ContentType.MOVIE,
+                    "ova": ContentType.OVA,
+                    "ona": ContentType.ONA,
+                    "special": ContentType.SPECIAL,
+                    "music": ContentType.MUSIC,
+                }
+                content_type = type_mapping.get(type_text, ContentType.UNKNOWN)
+
+            # Aired date (format: "Aired: Apr 3, 2016 to Mar 26, 2017" or "Aired: Oct 2, 2020")
+            elif text.startswith("Aired:"):
+                aired_text = text.replace("Aired:", "").strip()
+                # Extract first year from aired text
+                year_match = re.search(r"\b(19|20)\d{2}\b", aired_text)
+                if year_match:
+                    start_year = int(year_match.group(0))
+
+
         # Parse score distribution
         vote_counts: Dict[int, int] = {}
         percentages: Dict[int, float] = {}
@@ -519,7 +558,10 @@ class MyAnimeListPlatform(AnimePlatform):
             title=title,
             url=f"{self.BASE_URL}/anime/{anime_id}",
             score=score,
+            members=members,
             distribution=distribution,
+            content_type=content_type,
+            start_year=start_year,
             scraped_at=datetime.now(),
         )
 

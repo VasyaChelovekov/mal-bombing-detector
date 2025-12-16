@@ -1,0 +1,288 @@
+{
+  "metadata": {
+    "generated_at": "2025-12-16T14:21:32.194584",
+    "generator": "MAL Bombing Detector",
+    "version": "1.2.0",
+    "language": "en",
+    "total_requested": 5,
+    "total_analyzed": 5,
+    "total_failed": 0,
+    "total_skipped": 0,
+    "total_batches": 1
+  },
+  "summary": {
+    "count_by_level": {
+      "critical": 1,
+      "high": 0,
+      "medium": 2,
+      "low": 2
+    },
+    "suspicious_count": 3,
+    "highly_suspicious_count": 1,
+    "statistics": {
+      "avg_bombing_score": 51.078,
+      "max_bombing_score": 81.21,
+      "min_bombing_score": 30.49
+    }
+  },
+  "results": [
+    {
+      "metrics": [
+        {
+          "mal_id": 5114,
+          "title": "Fullmetal Alchemist: Brotherhood",
+          "ones_zscore": 7.24,
+          "distribution_effect_size": 0.797,
+          "spike_ratio": 13.81,
+          "entropy_deficit": 0.094,
+          "bimodality_coefficient": 0.71,
+          "ones_percentage": 2.21,
+          "tens_percentage": 48.53,
+          "bombing_score": 81.21,
+          "adjusted_score": 77.14,
+          "suspicion_level": "critical",
+          "bombing_rank": 1,
+          "metric_breakdown": {
+            "ONES_Z": 35.0,
+            "SPIKE": 20.0,
+            "EFFECT": 12.76,
+            "ENTROPY": 2.81,
+            "BIMODAL": 10.64
+          },
+          "anomaly_flags": [
+            "EXTREME_ONES_ANOMALY",
+            "EXTREME_SPIKE_PATTERN",
+            "CONFIRMED_BIMODALITY",
+            "MEDIUM_DISTRIBUTION_EFFECT"
+          ],
+          "low_score_anomaly": 1.71,
+          "distribution_deviation": 79.73,
+          "polarization_index": 87.03,
+          "severity": {
+            "level": "extreme",
+            "confidence": 1.0,
+            "impact_score": 81.21,
+            "estimated_fake_votes": 22896,
+            "rating_impact": 0.082,
+            "description": "Statistically significant anomaly. High probability of organized attack.",
+            "statistical_significance": 0.99
+          },
+          "context": {
+            "anime_age_years": 16,
+            "total_members": 3606780,
+            "popularity_tier": "mega_popular",
+            "content_type": "tv"
+          }
+        },
+        {
+          "mal_id": 57555,
+          "title": "Chainsaw Man Movie: Reze-hen",
+          "ones_zscore": 3.2,
+          "distribution_effect_size": 0.386,
+          "spike_ratio": 6.0,
+          "entropy_deficit": 0.124,
+          "bimodality_coefficient": 0.615,
+          "ones_percentage": 1.2,
+          "tens_percentage": 47.71,
+          "bombing_score": 57.92,
+          "adjusted_score": 52.13,
+          "suspicion_level": "medium",
+          "bombing_rank": 2,
+          "metric_breakdown": {
+            "ONES_Z": 28.0,
+            "SPIKE": 10.8,
+            "EFFECT": 6.18,
+            "ENTROPY": 3.72,
+            "BIMODAL": 9.23
+          },
+          "anomaly_flags": [
+            "EXTREME_ONES_ANOMALY",
+            "EXTREME_SPIKE_PATTERN",
+            "CONFIRMED_BIMODALITY"
+          ],
+          "low_score_anomaly": 0.7,
+          "distribution_deviation": 38.62,
+          "polarization_index": 88.35,
+          "severity": {
+            "level": "severe",
+            "confidence": 1.0,
+            "impact_score": 57.92,
+            "estimated_fake_votes": 637,
+            "rating_impact": 0.033,
+            "description": "Significant deviation from norm. Likely coordinated bombing.",
+            "statistical_significance": 0.99
+          },
+          "context": {
+            "anime_age_years": 0,
+            "total_members": 308129,
+            "popularity_tier": "mega_popular",
+            "content_type": "movie"
+          }
+        },
+        {
+          "mal_id": 52991,
+          "title": "Sousou no Frieren",
+          "ones_zscore": 2.36,
+          "distribution_effect_size": 0.506,
+          "spike_ratio": 8.25,
+          "entropy_deficit": 0.155,
+          "bimodality_coefficient": 0.652,
+          "ones_percentage": 0.99,
+          "tens_percentage": 55.54,
+          "bombing_score": 53.06,
+          "adjusted_score": 53.06,
+          "suspicion_level": "medium",
+          "bombing_rank": 3,
+          "metric_breakdown": {
+            "ONES_Z": 20.65,
+            "SPIKE": 9.9,
+            "EFFECT": 8.09,
+            "ENTROPY": 4.64,
+            "BIMODAL": 9.79
+          },
+          "anomaly_flags": [
+            "SIGNIFICANT_ONES_ANOMALY",
+            "EXTREME_SPIKE_PATTERN",
+            "CONFIRMED_BIMODALITY",
+            "MEDIUM_DISTRIBUTION_EFFECT",
+            "LOW_ENTROPY_WARNING"
+          ],
+          "low_score_anomaly": 0.49,
+          "distribution_deviation": 50.57,
+          "polarization_index": 90.74,
+          "severity": {
+            "level": "moderate",
+            "confidence": 0.83,
+            "impact_score": 53.06,
+            "estimated_fake_votes": 2269,
+            "rating_impact": 0.024,
+            "description": "Notable deviation. Could be attack or natural polarization.",
+            "statistical_significance": 0.95
+          },
+          "context": {
+            "anime_age_years": 2,
+            "total_members": 1276764,
+            "popularity_tier": "mega_popular",
+            "content_type": "tv"
+          }
+        },
+        {
+          "mal_id": 38524,
+          "title": "Shingeki no Kyojin Season 3 Part 2",
+          "ones_zscore": 1.48,
+          "distribution_effect_size": 0.659,
+          "spike_ratio": 3.85,
+          "entropy_deficit": 0.103,
+          "bimodality_coefficient": 0.552,
+          "ones_percentage": 0.77,
+          "tens_percentage": 44.0,
+          "bombing_score": 32.71,
+          "adjusted_score": 32.71,
+          "suspicion_level": "low",
+          "bombing_rank": 4,
+          "metric_breakdown": {
+            "ONES_Z": 12.95,
+            "SPIKE": 3.62,
+            "EFFECT": 10.55,
+            "ENTROPY": 3.1,
+            "BIMODAL": 2.49
+          },
+          "anomaly_flags": [
+            "ELEVATED_SPIKE_PATTERN",
+            "POSSIBLE_BIMODALITY",
+            "MEDIUM_DISTRIBUTION_EFFECT"
+          ],
+          "low_score_anomaly": 0.27,
+          "distribution_deviation": 65.92,
+          "polarization_index": 85.65,
+          "severity": {
+            "level": "light",
+            "confidence": 0.63,
+            "impact_score": 32.71,
+            "estimated_fake_votes": 0,
+            "rating_impact": 0.0,
+            "description": "Minor deviation within natural variation.",
+            "statistical_significance": 0.5
+          },
+          "context": {
+            "anime_age_years": 6,
+            "total_members": 2524218,
+            "popularity_tier": "mega_popular",
+            "content_type": "tv"
+          }
+        },
+        {
+          "mal_id": 9253,
+          "title": "Steins;Gate",
+          "ones_zscore": 1.24,
+          "distribution_effect_size": 0.361,
+          "spike_ratio": 3.38,
+          "entropy_deficit": 0.073,
+          "bimodality_coefficient": 0.6,
+          "ones_percentage": 0.71,
+          "tens_percentage": 46.24,
+          "bombing_score": 30.49,
+          "adjusted_score": 30.49,
+          "suspicion_level": "low",
+          "bombing_rank": 5,
+          "metric_breakdown": {
+            "ONES_Z": 10.85,
+            "SPIKE": 2.67,
+            "EFFECT": 5.77,
+            "ENTROPY": 2.2,
+            "BIMODAL": 9.0
+          },
+          "anomaly_flags": [
+            "ELEVATED_SPIKE_PATTERN",
+            "CONFIRMED_BIMODALITY"
+          ],
+          "low_score_anomaly": 0.21,
+          "distribution_deviation": 36.07,
+          "polarization_index": 82.24,
+          "severity": {
+            "level": "light",
+            "confidence": 0.6,
+            "impact_score": 30.49,
+            "estimated_fake_votes": 0,
+            "rating_impact": 0.0,
+            "description": "Minor deviation within natural variation.",
+            "statistical_significance": 0.5
+          },
+          "context": {
+            "anime_age_years": 14,
+            "total_members": 2758500,
+            "popularity_tier": "mega_popular",
+            "content_type": "tv"
+          }
+        }
+      ],
+      "summary": {
+        "total_requested": 5,
+        "total_analyzed": 5,
+        "total_failed": 0,
+        "total_skipped": 0,
+        "bombing_score": {
+          "mean": 51.08,
+          "median": 53.06,
+          "std": 18.55,
+          "min": 30.49,
+          "max": 81.21
+        },
+        "ones_percentage": {
+          "mean": 1.18,
+          "median": 0.99,
+          "max": 2.21
+        },
+        "count_by_level": {
+          "critical": 1,
+          "high": 1,
+          "medium": 1,
+          "low": 2
+        },
+        "suspicious_count": 3,
+        "highly_suspicious_count": 2
+      },
+      "failures": []
+    }
+  ]
+}
