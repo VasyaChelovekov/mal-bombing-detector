@@ -33,10 +33,10 @@ MIN_VOTES_THRESHOLD = 1000  # Minimum votes for analysis
 
 # Metric weights for Composite Suspicion Score
 METRIC_WEIGHTS = {
-    'extreme_rating_ratio': 0.15,      # ERR
-    'low_score_anomaly': 0.35,         # LSA - main metric for review bombing
-    'distribution_deviation': 0.20,    # DDS
-    'rating_distribution_mismatch': 0.30  # RDM
+    "extreme_rating_ratio": 0.15,  # ERR
+    "low_score_anomaly": 0.35,  # LSA - main metric for review bombing
+    "distribution_deviation": 0.20,  # DDS
+    "rating_distribution_mismatch": 0.30,  # RDM
 }
 
 # Threshold values for classification
@@ -46,16 +46,16 @@ METRIC_WEIGHTS = {
 # - High: clear signs of coordinated bombing
 # - Critical: massive review bombing
 SUSPICION_THRESHOLDS = {
-    'low': 25,       # < 25: low level
-    'medium': 45,    # 25-45: medium level  
-    'high': 65,      # 45-65: high level
-    'critical': 80   # > 65: critical (80+ = extreme)
+    "low": 25,  # < 25: low level
+    "medium": 45,  # 25-45: medium level
+    "high": 65,  # 45-65: high level
+    "critical": 80,  # > 65: critical (80+ = extreme)
 }
 
 # Expected score distribution for high-rated anime (8.5+)
 # Used as baseline for comparison
 EXPECTED_DISTRIBUTION_HIGH_RATED = {
-    1: 1.0,   # Expected percentage
+    1: 1.0,  # Expected percentage
     2: 0.5,
     3: 0.8,
     4: 1.2,
@@ -64,22 +64,22 @@ EXPECTED_DISTRIBUTION_HIGH_RATED = {
     7: 12.0,
     8: 25.0,
     9: 30.0,
-    10: 22.0
+    10: 22.0,
 }
 
 # Visualization
-CHART_STYLE = 'seaborn-v0_8-whitegrid'
+CHART_STYLE = "seaborn-v0_8-whitegrid"
 CHART_DPI = 150
 CHART_FIGSIZE = (12, 8)
-COLOR_PALETTE = 'coolwarm'
+COLOR_PALETTE = "coolwarm"
 
 # Excel formatting
-EXCEL_HEADER_COLOR = '#1F4E79'
-EXCEL_HEADER_FONT_COLOR = '#FFFFFF'
-EXCEL_ALTERNATING_ROW_COLOR = '#D6EAF8'
-EXCEL_HIGH_SUSPICION_COLOR = '#F1948A'
-EXCEL_MEDIUM_SUSPICION_COLOR = '#F9E79F'
-EXCEL_LOW_SUSPICION_COLOR = '#ABEBC6'
+EXCEL_HEADER_COLOR = "#1F4E79"
+EXCEL_HEADER_FONT_COLOR = "#FFFFFF"
+EXCEL_ALTERNATING_ROW_COLOR = "#D6EAF8"
+EXCEL_HIGH_SUSPICION_COLOR = "#F1948A"
+EXCEL_MEDIUM_SUSPICION_COLOR = "#F9E79F"
+EXCEL_LOW_SUSPICION_COLOR = "#ABEBC6"
 
 # Cache settings
 CACHE_EXPIRY_HOURS = 24

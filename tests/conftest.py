@@ -18,7 +18,7 @@ def sample_score_distribution():
         7: 3000,
         8: 5000,
         9: 4000,
-        10: 2000
+        10: 2000,
     }
 
 
@@ -35,7 +35,7 @@ def bombed_score_distribution():
         7: 1000,
         8: 2000,
         9: 3000,
-        10: 4000
+        10: 4000,
     }
 
 
@@ -52,7 +52,7 @@ def normal_score_distribution():
         7: 2500,
         8: 4500,
         9: 3500,
-        10: 1500
+        10: 1500,
     }
 
 
@@ -76,7 +76,7 @@ def sample_config():
                     "distribution_effect_size": 0.20,
                     "entropy_deficit": 0.15,
                     "bimodality": 0.10,
-                    "contextual": 0.10
+                    "contextual": 0.10,
                 },
                 "thresholds": {
                     "severity": {
@@ -84,9 +84,9 @@ def sample_config():
                         "high": 0.65,
                         "moderate": 0.50,
                         "low": 0.35,
-                        "minimal": 0.20
+                        "minimal": 0.20,
                     }
-                }
+                },
             }
         }
     }

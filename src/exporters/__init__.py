@@ -21,24 +21,19 @@ __all__ = [
 ]
 
 
-def get_exporter(
-    format_type: str,
-    output_config,
-    i18n=None,
-    **kwargs
-) -> BaseExporter:
+def get_exporter(format_type: str, output_config, i18n=None, **kwargs) -> BaseExporter:
     """
     Factory function to get an exporter by format type.
-    
+
     Args:
         format_type: Export format (excel, json, csv, tsv, html)
         output_config: Output configuration
         i18n: Internationalization manager
         **kwargs: Additional exporter-specific arguments
-        
+
     Returns:
         Appropriate exporter instance
-        
+
     Raises:
         ValueError: If format type is not supported
     """
@@ -50,12 +45,14 @@ def get_exporter(
         "tsv": TSVExporter,
         "html": HTMLExporter,
     }
-    
+
     format_lower = format_type.lower()
-    
+
     if format_lower not in exporters:
         supported = ", ".join(sorted(set(exporters.keys())))
-        raise ValueError(f"Unsupported export format: {format_type}. Supported: {supported}")
-    
+        raise ValueError(
+            f"Unsupported export format: {format_type}. Supported: {supported}"
+        )
+
     exporter_class = exporters[format_lower]
     return exporter_class(output_config, i18n, **kwargs)

@@ -35,94 +35,101 @@ logger = get_logger(__name__)
 class MetricsCalculator:
     """
     Calculator for review bombing metrics.
-    
+
     Analyzes anime score distributions to detect statistical
     anomalies that may indicate coordinated vote manipulation.
-    
+
     The calculator uses multiple metrics:
     - Z-score of ones percentage
     - Spike ratio (ones/twos)
     - Distribution effect size
     - Entropy deficit
     - Bimodality coefficient
-    
+
     Example:
         >>> calculator = MetricsCalculator()
         >>> metrics = calculator.calculate(anime_data)
         >>> print(f"Bombing score: {metrics.bombing_score}")
     """
-    
+
     def __init__(self):
         """Initialize the metrics calculator."""
         self.config = get_config()
         self.stats = DistributionStatistics()
         self.zscore_calc = ZScoreCalculator()
         self.effect_calc = EffectSizeCalculator()
-    
+
     def calculate(self, anime: AnimeData) -> ReviewBombingMetrics:
         """
         Calculate bombing metrics for an anime.
-        
+
         Args:
             anime: Anime data with score distribution.
-        
+
         Returns:
             ReviewBombingMetrics with all calculated values.
         """
         if anime.distribution is None:
             raise ValueError(f"No distribution data for anime {anime.mal_id}")
-        
+
         distribution = anime.distribution.percentages
         total_votes = anime.distribution.total_votes
-        
+
         ones_pct = distribution.get(1, 0)
         tens_pct = distribution.get(10, 0)
-        
+
         # Calculate core metrics
         ones_zscore = self.zscore_calc.calculate_ones_zscore(ones_pct, anime.score)
         spike_ratio = self.effect_calc.calculate_spike_ratio(distribution)
         effect_size = self._calculate_effect_size(distribution, anime.score)
         entropy_deficit = self.stats.calculate_entropy_deficit(distribution)
-        
+
         # Bimodality
         is_bimodal, bimodality = self.stats.detect_bimodality(distribution)
-        
+
         # Calculate composite score
         metric_scores = self._calculate_metric_scores(
-            ones_zscore, spike_ratio, effect_size, entropy_deficit, 
-            bimodality, is_bimodal
+            ones_zscore,
+            spike_ratio,
+            effect_size,
+            entropy_deficit,
+            bimodality,
+            is_bimodal,
         )
-        
+
         bombing_score = sum(metric_scores.values())
         bombing_score = min(100, max(0, bombing_score))
-        
+
         # Contextual factors
         context = self._calculate_context(anime, total_votes)
-        
+
         # Adjusted score
         adjusted_score = bombing_score * context.get_total_adjustment()
         adjusted_score = min(100, max(0, adjusted_score))
-        
+
         # Classification (with z-score and spike ratio overrides for extreme cases)
         suspicion_level = self._classify_level(
             bombing_score, ones_zscore, ones_pct, spike_ratio
         )
-        
+
         # Severity
         severity = self._calculate_severity(
-            bombing_score, ones_pct, total_votes, anime.score, 
-            bimodality, ones_zscore
+            bombing_score, ones_pct, total_votes, anime.score, bimodality, ones_zscore
         )
-        
+
         # Anomaly flags
         anomaly_flags = self._detect_anomaly_flags(
-            ones_zscore, spike_ratio, effect_size, entropy_deficit,
-            is_bimodal, bimodality
+            ones_zscore,
+            spike_ratio,
+            effect_size,
+            entropy_deficit,
+            is_bimodal,
+            bimodality,
         )
-        
+
         # Polarization for visualization
         polarization = self.stats.calculate_polarization_index(distribution)
-        
+
         return ReviewBombingMetrics(
             mal_id=anime.mal_id,
             title=anime.title,
@@ -145,7 +152,7 @@ class MetricsCalculator:
             distribution_deviation=round(effect_size * 100, 2),
             polarization_index=round(polarization, 2),
         )
-    
+
     def _calculate_effect_size(
         self,
         distribution: Dict[int, float],
@@ -154,7 +161,7 @@ class MetricsCalculator:
         """Calculate effect size of distribution deviation."""
         expected = get_expected_distribution(anime_score)
         return self.effect_calc.calculate_cohens_d(distribution, expected)
-    
+
     def _calculate_metric_scores(
         self,
         ones_zscore: float,
@@ -166,22 +173,22 @@ class MetricsCalculator:
     ) -> Dict[str, float]:
         """Calculate weighted scores for each metric."""
         weights = self.config.analysis.metric_weights
-        
+
         # Normalize metrics to 0-100 scale
         ones_score = min(100, ones_zscore * 25)
         spike_score = min(100, max(0, (spike_ratio - 1.5) * 20))
         effect_score = min(100, effect_size * 80)
         entropy_score = min(100, entropy_deficit * 300)
         bimodality_score = bimodality * 100 if is_bimodal else bimodality * 30
-        
+
         return {
-            'ONES_Z': ones_score * weights.ones_zscore,
-            'SPIKE': spike_score * weights.spike_anomaly,
-            'EFFECT': effect_score * weights.distribution_effect,
-            'ENTROPY': entropy_score * weights.entropy_deficit,
-            'BIMODAL': bimodality_score * weights.bimodality,
+            "ONES_Z": ones_score * weights.ones_zscore,
+            "SPIKE": spike_score * weights.spike_anomaly,
+            "EFFECT": effect_score * weights.distribution_effect,
+            "ENTROPY": entropy_score * weights.entropy_deficit,
+            "BIMODAL": bimodality_score * weights.bimodality,
         }
-    
+
     def _calculate_context(
         self,
         anime: AnimeData,
@@ -191,17 +198,17 @@ class MetricsCalculator:
         factors = ContextualFactors()
         factors.content_type = anime.content_type
         factors.is_sequel = anime.is_sequel
-        
+
         # Age
         if anime.start_year > 0:
             factors.anime_age_years = datetime.now().year - anime.start_year
-        
+
         # Popularity
         factors.total_members = anime.members
-        
+
         if anime.members > 0:
             factors.votes_to_members_ratio = total_votes / anime.members
-        
+
         # Determine popularity tier
         if anime.rank > 0:
             if anime.rank <= 50:
@@ -212,25 +219,29 @@ class MetricsCalculator:
                 factors.popularity_tier = "popular"
             else:
                 factors.popularity_tier = "moderate"
-        
+
         # Age adjustment
         age_config = self.config.analysis
         if factors.anime_age_years > age_config.age_old_threshold_years:
             factors.age_adjustment = age_config.age_old_factor
         else:
             factors.age_adjustment = age_config.age_default_factor
-        
+
         # Format adjustment
         format_adj = self.config.analysis.format_adjustments
-        if anime.content_type in (ContentType.MOVIE, ContentType.OVA, ContentType.SPECIAL):
+        if anime.content_type in (
+            ContentType.MOVIE,
+            ContentType.OVA,
+            ContentType.SPECIAL,
+        ):
             factors.format_adjustment = format_adj.movie
         elif anime.is_sequel:
             factors.format_adjustment = format_adj.sequel
         else:
             factors.format_adjustment = format_adj.default
-        
+
         return factors
-    
+
     def _classify_level(
         self,
         score: float,
@@ -240,59 +251,39 @@ class MetricsCalculator:
     ) -> SuspicionLevel:
         """
         Classify bombing score into suspicion level.
-        
-        Applies overrides for extreme statistical anomalies
-        that may not be captured by the composite score alone.
-        
+
+        Classification is purely based on bombing_score thresholds:
+        - CRITICAL: score >= 75
+        - HIGH: score >= 55
+        - MEDIUM: score >= 35
+        - LOW: score < 35
+
+        Note: Statistical anomalies (z-score, spike ratio) are already
+        factored into the bombing_score calculation. The anomaly_flags
+        field captures extreme cases for reporting purposes.
+
         Args:
-            score: Composite bombing score.
-            ones_zscore: Z-score of ones percentage.
-            ones_pct: Actual ones percentage.
-            spike_ratio: Ratio of 1-votes to 2-votes.
-        
+            score: Composite bombing score (0-100).
+            ones_zscore: Z-score (used for anomaly flags, not classification).
+            ones_pct: Ones percentage (used for anomaly flags, not classification).
+            spike_ratio: Spike ratio (used for anomaly flags, not classification).
+
         Returns:
-            Suspicion level classification.
+            Suspicion level classification based purely on score.
         """
         thresholds = self.config.analysis.suspicion_thresholds
-        
-        # Z-score override: extreme statistical anomalies
-        # For highly rated anime (elite/excellent), high ones% is very suspicious
-        # Z-score > 10 means the ones% is 10+ standard deviations above expected
-        if ones_zscore >= 15:
+
+        # Pure threshold-based classification (Fix C)
+        # This ensures suspicion_level always matches bombing_score ranges
+        if score >= thresholds.critical:  # >= 75
             return SuspicionLevel.CRITICAL
-        elif ones_zscore >= 10:
+        elif score >= thresholds.high:  # >= 55
             return SuspicionLevel.HIGH
-        elif ones_zscore >= 6 and ones_pct >= 3.0:
-            # High z-score + substantial ones percentage = suspicious
-            return SuspicionLevel.HIGH
-        
-        # Spike ratio override: extreme 1:2 vote imbalance
-        # Natural distributions have 1s and 2s in similar proportions
-        # Ratio >= 8 is extremely unnatural and indicates coordinated 1-bombing
-        if spike_ratio >= 8.0:
-            return SuspicionLevel.HIGH
-        elif spike_ratio >= 5.0 and ones_pct >= 1.5:
-            # High spike ratio + notable ones = suspicious
-            return SuspicionLevel.MEDIUM
-        
-        # Ones% override: For elite anime (score >= 8.5), high ones% is very suspicious
-        # Even without high z-score, 3.5%+ ones on top-rated anime is anomalous
-        if ones_pct >= 3.5:
-            return SuspicionLevel.HIGH
-        elif ones_pct >= 2.5 and spike_ratio >= 3.0:
-            # Moderate ones% + elevated spike ratio = suspicious
-            return SuspicionLevel.MEDIUM
-        
-        # Standard threshold-based classification
-        if score >= thresholds.critical:
-            return SuspicionLevel.CRITICAL
-        elif score >= thresholds.high:
-            return SuspicionLevel.HIGH
-        elif score >= thresholds.medium:
+        elif score >= thresholds.medium:  # >= 35
             return SuspicionLevel.MEDIUM
         else:
             return SuspicionLevel.LOW
-    
+
     def _calculate_severity(
         self,
         bombing_score: float,
@@ -312,21 +303,21 @@ class MetricsCalculator:
             p_value = 0.10
         else:
             p_value = 0.50
-        
+
         # Estimate fake votes
         category = self.zscore_calc.get_rating_category(anime_score)
         expected = self.config.analysis.expected_ones_by_rating.get(category)
-        
+
         max_natural = expected.max_natural if expected else 2.0
         excess_ones_pct = max(0, ones_pct - max_natural)
         estimated_fake_votes = int((excess_ones_pct / 100) * total_votes)
-        
+
         # Rating impact
         if total_votes > 0:
             rating_impact = (estimated_fake_votes * (anime_score - 1)) / total_votes
         else:
             rating_impact = 0.0
-        
+
         # Determine level
         if bombing_score >= 75:
             level = SeverityLevel.EXTREME
@@ -343,10 +334,12 @@ class MetricsCalculator:
         else:
             level = SeverityLevel.NONE
             description = "Distribution matches expected pattern."
-        
+
         # Confidence
-        confidence = min(1.0, 0.3 + bombing_score / 100 + (0.2 if p_value < 0.05 else 0))
-        
+        confidence = min(
+            1.0, 0.3 + bombing_score / 100 + (0.2 if p_value < 0.05 else 0)
+        )
+
         return BombingSeverity(
             level=level,
             confidence=round(confidence, 2),
@@ -356,7 +349,7 @@ class MetricsCalculator:
             description=description,
             statistical_significance=1 - p_value,
         )
-    
+
     def _detect_anomaly_flags(
         self,
         ones_zscore: float,
@@ -369,47 +362,47 @@ class MetricsCalculator:
         """Detect anomaly flags based on thresholds."""
         flags = []
         thresholds = self.config.analysis.statistical_thresholds
-        
+
         # Z-score
         if ones_zscore >= thresholds.ones_zscore_extreme:
             flags.append("EXTREME_ONES_ANOMALY")
         elif ones_zscore >= thresholds.ones_zscore_significant:
             flags.append("SIGNIFICANT_ONES_ANOMALY")
-        
+
         # Spike ratio
         if spike_ratio >= thresholds.spike_ratio_extreme:
             flags.append("EXTREME_SPIKE_PATTERN")
         elif spike_ratio >= thresholds.spike_ratio_elevated:
             flags.append("ELEVATED_SPIKE_PATTERN")
-        
+
         # Bimodality
         if is_bimodal and bimodality >= thresholds.bimodality_confirmed:
             flags.append("CONFIRMED_BIMODALITY")
         elif bimodality >= thresholds.bimodality_possible:
             flags.append("POSSIBLE_BIMODALITY")
-        
+
         # Effect size
         if effect_size >= thresholds.effect_size_large:
             flags.append("LARGE_DISTRIBUTION_EFFECT")
         elif effect_size >= thresholds.effect_size_medium:
             flags.append("MEDIUM_DISTRIBUTION_EFFECT")
-        
+
         # Entropy
         if entropy_deficit >= thresholds.entropy_deficit_warning:
             flags.append("LOW_ENTROPY_WARNING")
-        
+
         return flags
-    
+
     def rank_by_bombing(
         self,
         metrics_list: List[ReviewBombingMetrics],
     ) -> List[ReviewBombingMetrics]:
         """
         Rank anime by bombing score.
-        
+
         Args:
             metrics_list: List of metrics to rank.
-        
+
         Returns:
             Sorted list with assigned ranks.
         """
@@ -418,8 +411,8 @@ class MetricsCalculator:
             key=lambda x: x.bombing_score,
             reverse=True,
         )
-        
+
         for i, metrics in enumerate(sorted_metrics, 1):
             metrics.bombing_rank = i
-        
+
         return sorted_metrics

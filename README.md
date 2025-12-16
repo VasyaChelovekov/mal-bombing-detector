@@ -4,90 +4,103 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
-A sophisticated tool for detecting rating manipulation (vote bombing) on MyAnimeList. Uses statistical analysis to identify suspicious rating patterns that may indicate coordinated voting campaigns.
+**Detect rating manipulation (vote bombing) on MyAnimeList using statistical analysis.**
+
+The tool fetches anime rating distributions and applies multiple statistical metrics to surface suspicious patterns that may indicate coordinated 1-star campaigns.
+
+---
 
 ## Table of Contents
 
 - [Features](#features)
 - [Installation](#installation)
-- [Quick Start](#quick-start)
-- [CLI Commands](#cli-commands)
-- [Detection Methodology](#detection-methodology)
+- [Quickstart](#quickstart)
+- [CLI Reference](#cli-reference)
+  - [analyze](#analyze)
+  - [single](#single)
+  - [compare](#compare)
+  - [version](#version)
 - [Configuration](#configuration)
-- [Project Structure](#project-structure)
-- [Running Tests](#running-tests)
-- [Development](#development)
+  - [Precedence Rules](#precedence-rules)
+  - [Output Directory Semantics](#output-directory-semantics)
+- [Export Formats](#export-formats)
+- [Detection Methodology](#detection-methodology)
+- [Development & Testing](#development--testing)
+- [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [License](#license)
 
+---
+
 ## Features
 
-- **Statistical Analysis**: Detects anomalies using z-score analysis, spike ratios, and distribution analysis
-- **Multi-Language Support**: Available in English, Japanese, German, French, Spanish, Russian, and Chinese
-- **Multiple Export Formats**: Export results to Excel, JSON, CSV, or HTML
-- **Caching System**: Efficient caching to reduce API calls and speed up repeated analysis
-- **CLI Interface**: Full command-line interface for easy automation
-- **Progress Tracking**: Real-time progress bars with time estimates
+- **Statistical Detection** — Z-score analysis, spike ratios, Cohen's d effect size, bimodality, entropy deficit
+- **Multiple Export Formats** — Excel, JSON, CSV, HTML
+- **Multi-Language Output** — en, ja, de, fr, es, ru, zh
+- **Caching** — Reduces API calls on repeated runs
+- **Rich CLI** — Progress bars, colored output, and structured reports
+
+---
 
 ## Installation
 
-### Prerequisites
+**Requirements:** Python 3.10+
 
-- Python 3.10 or higher
-- pip (Python package manager)
-
-### Setup
-
-1. Clone the repository:
 ```bash
+# Clone the repository
 git clone https://github.com/VasyaChelovekov/mal-bombing-detector.git
 cd mal-bombing-detector
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-3. (Optional) Copy the example config:
-```bash
+# (Optional) Copy the example config
 cp config/config.example.yaml config/config.yaml
 ```
 
-## Quick Start
+---
 
-### Analyze Top Anime
+## Quickstart
 
-Analyze the top 100 anime by rating:
+### Analyze the top 100 anime
 
 ```bash
 python -m src analyze --limit 100
 ```
 
-### Analyze a Single Anime
+Output files are written to `output/reports/` by default (e.g., `top_100_analysis_20251216_120000.xlsx`).
+
+### Analyze a single anime by MAL ID
 
 ```bash
-python -m src single 30276    # One Punch Man (by MAL ID)
+python -m src single 30276
 ```
 
-### Compare Multiple Anime
+Prints a detailed metric breakdown for the specified anime (e.g., One Punch Man).
+
+### Compare multiple anime
 
 ```bash
-python -m src compare 5114,9253,38524    # Comma-separated IDs
+python -m src compare 5114,9253,38524
 ```
 
-### Export Results
+Displays a side-by-side comparison table.
+
+### Check version
 
 ```bash
-python -m src analyze --limit 50 --format excel
-python -m src analyze --limit 50 --format json --output ./reports
+python -m src version
 ```
 
-## CLI Commands
+Prints `MAL Bombing Detector v<version>` using the packaged `__version__` from `src/_version.py`.
+
+---
+
+## CLI Reference
 
 ### `analyze`
 
-Analyze top anime for review bombing.
+Analyze top N anime for review bombing.
 
 ```bash
 python -m src analyze [OPTIONS]
@@ -95,27 +108,30 @@ python -m src analyze [OPTIONS]
 
 | Option | Short | Description | Default |
 |--------|-------|-------------|---------|
-| `--limit` | `-n` | Number of top anime to analyze | 50 |
-| `--platform` | `-p` | Platform to analyze | myanimelist |
-| `--output` | `-o` | Output directory for reports | output/reports |
-| `--format` | `-f` | Export format(s), comma-separated | excel,json |
-| `--no-cache` | | Disable caching | false |
-| `--no-charts` | | Disable chart generation | false |
-| `--lang` | `-l` | Output language (en, ru, es, ja, zh, de, fr) | en |
-| `--config` | `-c` | Path to configuration file | None |
-| `--verbose` | `-v` | Enable verbose output | false |
+| `--limit` | `-n` | Number of top anime to analyze | `50` |
+| `--platform` | `-p` | Platform to analyze | config `platforms.default` or `myanimelist` |
+| `--output` | `-o` | Output directory for reports (treated as final path) | config `export.output_directory` + `/reports` if needed |
+| `--format` | `-f` | Export format(s), comma-separated | config `export.default_format` or `excel,json` |
+| `--no-cache` | | Disable caching | `false` |
+| `--no-charts` | | Disable chart generation | `false` |
+| `--lang` | `-l` | Output language (en, ru, es, ja, zh, de, fr) | config `general.language` or `en` |
+| `--config` | `-c` | Path to configuration file | `config/config.yaml` |
+| `--verbose` | `-v` | Enable verbose output | `false` |
 
 **Examples:**
+
 ```bash
-# Analyze top 100 anime with Excel and JSON export
+# Analyze top 100 anime, export to Excel and JSON
 python -m src analyze -n 100 -f excel,json
 
-# Analyze with custom output directory
-python -m src analyze --limit 50 --output ./my-reports
+# Analyze with explicit output directory (no automatic suffix)
+python -m src analyze --limit 50 --output C:/tmp/run
 
-# Analyze without cache (fresh data)
-python -m src analyze -n 100 --no-cache
+# Analyze in Japanese, skip cache
+python -m src analyze -n 100 --lang ja --no-cache
 ```
+
+---
 
 ### `single`
 
@@ -125,17 +141,20 @@ Deep-dive analysis of a single anime.
 python -m src single ANIME_ID [OPTIONS]
 ```
 
-| Argument/Option | Description | Required |
-|-----------------|-------------|----------|
-| `ANIME_ID` | MyAnimeList anime ID | Yes |
-| `--platform`, `-p` | Platform to use | No |
-| `--verbose`, `-v` | Enable verbose output | No |
+| Argument/Option | Description |
+|-----------------|-------------|
+| `ANIME_ID` | MyAnimeList anime ID (required) |
+| `--platform`, `-p` | Platform override (default from config) |
+| `--verbose`, `-v` | Enable verbose output |
 
 **Examples:**
+
 ```bash
-python -m src single 52991    # Frieren
-python -m src single 30276 -v # One Punch Man with verbose output
+python -m src single 52991         # Frieren
+python -m src single 30276 -v      # One Punch Man with verbose output
 ```
+
+---
 
 ### `compare`
 
@@ -145,16 +164,18 @@ Compare bombing metrics between multiple anime.
 python -m src compare IDS [OPTIONS]
 ```
 
-| Argument/Option | Description | Required |
-|-----------------|-------------|----------|
-| `IDS` | Comma-separated anime IDs | Yes |
-| `--platform`, `-p` | Platform to use | No |
+| Argument/Option | Description |
+|-----------------|-------------|
+| `IDS` | Comma-separated anime IDs (required) |
+| `--platform`, `-p` | Platform override (default from config) |
 
 **Examples:**
+
 ```bash
 python -m src compare 52991,57555,5114
-python -m src compare 30276,9253,38524
 ```
+
+---
 
 ### `version`
 
@@ -164,188 +185,175 @@ Display version information.
 python -m src version
 ```
 
-## Detection Methodology
+Prints the version string from `src/_version.py`.
 
-### Metrics Used
-
-| Metric | Weight | Description |
-|--------|--------|-------------|
-| Ones Z-Score | 35% | Statistical deviation of 1-star ratings from expected |
-| Spike Ratio | 20% | Ratio of 1-star ratings to neighboring scores (2-3) |
-| Distribution Effect | 20% | Cohen's d effect size for distribution skewness |
-| Bimodality | 15% | Detection of unusual rating peaks (10s and 1s) |
-| Entropy Deviation | 10% | Rating distribution uniformity measure |
-
-### Severity Levels
-
-| Level | Score Range | Description |
-|-------|-------------|-------------|
-| 🔴 CRITICAL | 75+ | Strong evidence of coordinated bombing |
-| 🟠 HIGH | 55-74 | Likely bombing detected |
-| 🟡 MEDIUM | 35-54 | Possible bombing indicators |
-| 🟢 LOW | 0-34 | Normal rating distribution |
-
-### Override Rules
-
-The system applies automatic severity overrides for extreme statistical anomalies:
-
-| Condition | Override |
-|-----------|----------|
-| Z-Score ≥ 15 | → CRITICAL |
-| Z-Score ≥ 10 | → HIGH |
-| Spike Ratio ≥ 8 | → HIGH |
-| Ones % ≥ 3.5% (for anime with score ≥ 8.5) | → HIGH |
-| Spike Ratio ≥ 6 + Ones % ≥ 1.5% | → MEDIUM |
+---
 
 ## Configuration
 
-Configuration is loaded from `config/config.yaml`. Copy from `config/config.example.yaml` to get started.
-
-### Key Settings
+Copy `config/config.example.yaml` to `config/config.yaml` and edit as needed. Key sections:
 
 ```yaml
-# Analysis settings
+general:
+  language: en          # Output language (en, ru, es, ja, zh, de, fr)
+  log_level: INFO
+
+platforms:
+  default: myanimelist  # Default platform if --platform not specified
+
+cache:
+  enabled: true
+  directory: "data/cache"
+  expiry_hours: 24
+
+export:
+  output_directory: "output/reports"   # Base output path
+  default_format: "excel,json"         # Default --format value
+
 analysis:
-  # Metric weights (must sum to 1.0)
   metric_weights:
     ones_zscore: 0.35
     spike_anomaly: 0.20
     distribution_effect: 0.20
     bimodality: 0.15
     entropy_deficit: 0.10
-  
-  # Suspicion level thresholds
   suspicion_thresholds:
     critical: 75
     high: 55
     medium: 35
-
-# Rate limiting
-rate_limit:
-  min_delay: 0.5      # Minimum delay between requests (seconds)
-  max_delay: 5.0      # Maximum delay on rate limit errors
-  adaptive: true      # Enable adaptive rate limiting
-
-# Cache settings
-cache:
-  enabled: true
-  ttl_hours: 24       # Cache time-to-live
-
-# Export settings
-export:
-  output_directory: output/reports
-  default_format: excel
 ```
 
-## Project Structure
+---
 
-```
-mal-bombing-detector/
-├── src/
-│   ├── cli/           # Command-line interface (typer)
-│   ├── core/          # Analysis logic, metrics, models
-│   ├── exporters/     # Export handlers (Excel, JSON, CSV, HTML)
-│   ├── platforms/     # Platform scrapers (MyAnimeList)
-│   ├── utils/         # Utilities (cache, config, logging, i18n)
-│   └── visualization/ # Charts and themes
-├── tests/
-│   ├── unit/          # Unit tests
-│   ├── integration/   # Integration tests
-│   └── fixtures/      # Test data
-├── config/            # Configuration files
-├── locales/           # Translation files (7 languages)
-├── output/            # Generated reports and charts
-└── docs/              # Additional documentation
-```
+### Precedence Rules
 
-## Running Tests
+Options are resolved in the following order (first defined wins):
 
-```bash
-# Run all tests
-pytest
+| Command | Precedence |
+|---------|------------|
+| **analyze** | CLI args → config file → built-in defaults |
+| **single** | Language: config `general.language`; Platform: CLI `--platform` → config `platforms.default` |
+| **compare** | Language: config `general.language`; Platform: CLI `--platform` → config `platforms.default` |
 
-# Run with coverage
-pytest --cov=src --cov-report=html
+---
 
-# Run specific test file
-pytest tests/unit/test_metrics.py
+### Output Directory Semantics
 
-# Run with verbose output
-pytest -v
-```
+The tool avoids duplicating `reports` in the output path:
 
-## Development
+| Scenario | Config / CLI | Resulting output path |
+|----------|--------------|----------------------|
+| Config base dir | `export.output_directory: output` | `output/reports/top_{n}_analysis_*.{ext}` |
+| Config already ends with `reports` | `export.output_directory: output/reports` | `output/reports/top_{n}_analysis_*.{ext}` (no extra suffix) |
+| CLI `--output` | `--output C:/tmp/run` | `C:/tmp/run/top_{n}_analysis_*.{ext}` (used as-is, no suffix) |
 
-### Install Development Dependencies
+> **Key rule:** `--output` is treated as the **final directory**—no automatic `reports` suffix is added.
+
+---
+
+## Export Formats
+
+Select formats via `--format` (comma-separated):
+
+| Format | Extension | Description |
+|--------|-----------|-------------|
+| `excel` | `.xlsx` | Full report with optional charts and severity sheet |
+| `json` | `.json` | Machine-readable payload with metadata, summary, results, and failures |
+| `csv` | `.csv` | Simple tabular export |
+| `html` | `.html` | Styled HTML report (template-based) |
+
+**JSON structure (key fields):**
+
+- `metadata` — `generated_at`, `version`, `language`, totals (`total_requested`, `total_analyzed`, `total_failed`, `total_skipped`, `total_batches`)
+- `summary` — `count_by_level`, `suspicious_count`, `highly_suspicious_count`, score statistics
+- `results` — per-batch objects with `metrics` and batch-scoped `summary`
+- `failures` (optional) — list of `{ mal_id, title, url, stage, error_type, message, timestamp }`
+
+---
+
+## Detection Methodology
+
+### Metrics
+
+| Metric | Weight | Description |
+|--------|--------|-------------|
+| Ones Z-Score | 35% | How statistically unusual the 1-vote count is |
+| Spike Ratio | 20% | Ratio of 1-votes to neighboring scores (2–4) |
+| Distribution Effect | 20% | Cohen's d effect size for distribution skewness |
+| Bimodality | 15% | Detects dual peaks at 10s and 1s |
+| Entropy Deficit | 10% | Measures rating distribution uniformity |
+
+### Severity Levels
+
+Levels are determined **solely by the bombing score** (0–100):
+
+| Level | Score Range | Description |
+|-------|-------------|-------------|
+| 🔴 CRITICAL | 75–100 | Strong evidence of coordinated bombing |
+| 🟠 HIGH | 55–74 | Likely bombing detected |
+| 🟡 MEDIUM | 35–54 | Possible bombing indicators |
+| 🟢 LOW | 0–34 | Normal rating distribution |
+
+Anomaly flags (e.g., `extreme_ones_spike`, `high_zscore`) are **informational** and do not override the level.
+
+---
+
+## Development & Testing
+
+### Install dev dependencies
 
 ```bash
 pip install -r requirements-dev.txt
 ```
 
-### Code Formatting and Linting
+### Code quality
 
 ```bash
-# Format code
-ruff format .
-
-# Check and fix linting issues
-ruff check --fix .
+ruff format .        # Format code
+ruff check .         # Lint (add --fix for auto-fix)
+pytest -q            # Run tests
 ```
 
-### Pre-commit Hooks (Optional)
+Tests cover CLI path semantics, exporter payload integrity, config precedence, and failure-record factories.
 
-```bash
-pip install pre-commit
-pre-commit install
-```
+---
 
-## Sample Output
+## Troubleshooting
 
-```
-╔══════════════════════════════════════════════════════════════╗
-║         MAL BOMBING DETECTOR v1.0                            ║
-║         Vote brigading detection for anime platforms         ║
-╚══════════════════════════════════════════════════════════════╝
+| Problem | Possible Cause | Solution |
+|---------|----------------|----------|
+| `No distribution data for ID` | Anime stats page unavailable or private | Retry later or skip the ID |
+| Double `reports/reports` in path | Older config had trailing `/reports` | Upgrade to latest code; the tool now avoids duplicating the segment |
+| Rate-limit errors (429) | Too many requests | Enable adaptive delay in config (`scraping.adaptive_delay.enabled: true`) and increase `min_delay` |
+| Missing language strings | Locale file incomplete | Ensure all keys exist in `locales/{lang}.json`; fallback is `en` |
+| `--output` ignored | Flag placed after positional arg | Place `--output` before positional arguments |
 
-✓ Fetched 100 anime from rankings
-Collecting statistics ━━━━━━━━━━━━━━━━━━━━ 100/100 • 0:02:15
-✓ Collected stats for 98 anime (2 failed)
-
-================================================================================
-TOP 20 ANIME WITH HIGHEST BOMBING SUSPICION
-================================================================================
-
-#  1 🟠 Gintama: The Final
-     Bombing Score: 67.30 (HIGH)
-     Ones: 4.27% | Tens: 45.21%
-     Flags: extreme_ones_spike, high_zscore
-
-#  2 🟡 Kaguya-sama: Love is War - Ultra Romantic
-     Bombing Score: 42.15 (MEDIUM)
-     Ones: 1.82% | Tens: 52.34%
-```
+---
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
+Contributions are welcome! See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for full guidelines.
 
-### Quick Start for Contributors
+**Quick steps:**
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Make your changes and add tests
-4. Run tests: `pytest`
-5. Run linting: `ruff check .`
-6. Commit: `git commit -m "feat: add my feature"`
-7. Push and create a Pull Request
+3. Make changes and add tests
+4. Run `pytest` and `ruff check .`
+5. Commit using conventional commits: `git commit -m "feat: add my feature"`
+6. Open a Pull Request
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+
+---
 
 ## Disclaimer
 
-This tool is for **educational and research purposes only**. Always respect MyAnimeList's Terms of Service and rate limits when using this tool. The developers are not responsible for any misuse or violations of platform policies.
+This tool is for **educational and research purposes only**. Always respect MyAnimeList's Terms of Service and rate limits. The developers are not responsible for any misuse or violations of platform policies.
 
 ---
 

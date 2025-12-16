@@ -16,7 +16,7 @@ from src.utils.i18n import I18nManager
 
 class HTMLExporter(BaseExporter):
     """Export analysis results to HTML format."""
-    
+
     # Suspicion level color classes
     SUSPICION_CLASSES = {
         SuspicionLevel.CRITICAL: "severity-critical",
@@ -24,16 +24,16 @@ class HTMLExporter(BaseExporter):
         SuspicionLevel.MEDIUM: "severity-moderate",
         SuspicionLevel.LOW: "severity-low",
     }
-    
+
     def __init__(
         self,
         output_config: OutputConfig,
         i18n: I18nManager | None = None,
-        include_charts: bool = True
+        include_charts: bool = True,
     ):
         """
         Initialize HTML exporter.
-        
+
         Args:
             output_config: Output configuration
             i18n: Internationalization manager
@@ -41,27 +41,23 @@ class HTMLExporter(BaseExporter):
         """
         super().__init__(output_config, i18n)
         self.include_charts = include_charts
-    
+
     @property
     def file_extension(self) -> str:
         return "html"
-    
+
     @property
     def name(self) -> str:
         return "HTML"
-    
+
     def export(
-        self,
-        result: AnalysisResult,
-        output_path: Path | str | None = None
+        self, result: AnalysisResult, output_path: Path | str | None = None
     ) -> Path:
         """Export single analysis result to HTML."""
         return self.export_multiple([result], output_path)
-    
+
     def export_multiple(
-        self,
-        results: list[AnalysisResult],
-        output_path: Path | str | None = None
+        self, results: list[AnalysisResult], output_path: Path | str | None = None
     ) -> Path:
         """Export multiple analysis results to HTML."""
         if output_path:
@@ -69,18 +65,18 @@ class HTMLExporter(BaseExporter):
         else:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             path = self._get_output_path(f"mal_bombing_report_{timestamp}")
-        
+
         # Build HTML content
         html = self._build_html(results)
-        
+
         # Write to file
         path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         with open(path, "w", encoding="utf-8") as f:
             f.write(html)
-        
+
         return path
-    
+
     def _build_html(self, results: list[AnalysisResult]) -> str:
         """Build complete HTML document."""
         return f"""<!DOCTYPE html>
@@ -119,7 +115,7 @@ class HTMLExporter(BaseExporter):
     {self._get_chart_init_scripts(results) if self.include_charts else ""}
 </body>
 </html>"""
-    
+
     def _get_styles(self) -> str:
         """Get CSS styles."""
         return """<style>
@@ -293,27 +289,29 @@ class HTMLExporter(BaseExporter):
         }
     }
 </style>"""
-    
+
     def _get_chart_scripts(self) -> str:
         """Get Chart.js script tags."""
         return """<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>"""
-    
+
     def _build_summary_html(self, results: list[AnalysisResult]) -> str:
         """Build summary section HTML."""
         # Aggregate all metrics from all results
         all_metrics = []
         for r in results:
             all_metrics.extend(r.metrics)
-        
+
         total = len(all_metrics)
-        
+
         # Count by suspicion level
         level_counts = {level: 0 for level in SuspicionLevel}
         for m in all_metrics:
             level_counts[m.suspicion_level] += 1
-        
-        avg_score = sum(m.bombing_score for m in all_metrics) / total if total > 0 else 0
-        
+
+        avg_score = (
+            sum(m.bombing_score for m in all_metrics) / total if total > 0 else 0
+        )
+
         return f"""<div class="summary-grid">
     <div class="summary-card">
         <div class="value">{total}</div>
@@ -336,7 +334,7 @@ class HTMLExporter(BaseExporter):
         <div class="label">Avg Bombing Score</div>
     </div>
 </div>"""
-    
+
     def _build_charts_html(self, results: list[AnalysisResult]) -> str:
         """Build charts section HTML."""
         return """<section class="charts">
@@ -350,16 +348,16 @@ class HTMLExporter(BaseExporter):
         </div>
     </div>
 </section>"""
-    
+
     def _build_table_html(self, results: list[AnalysisResult]) -> str:
         """Build results table HTML."""
         rows = []
-        
+
         for r in results:
             anime = r.anime
             metrics = r.metrics
             severity_class = self.SEVERITY_CLASSES[metrics.severity]
-            
+
             rows.append(f"""<tr>
     <td>{anime.rank}</td>
     <td><a href="{anime.url}" target="_blank">{anime.title}</a></td>
@@ -370,7 +368,7 @@ class HTMLExporter(BaseExporter):
     <td>{metrics.ones_percent:.1f}%</td>
     <td>{metrics.tens_percent:.1f}%</td>
 </tr>""")
-        
+
         return f"""<div style="overflow-x: auto;">
 <table>
     <thead>
@@ -390,24 +388,26 @@ class HTMLExporter(BaseExporter):
     </tbody>
 </table>
 </div>"""
-    
+
     def _get_chart_init_scripts(self, results: list[AnalysisResult]) -> str:
         """Get Chart.js initialization scripts."""
         # Aggregate all metrics
         all_metrics = []
         for r in results:
             all_metrics.extend(r.metrics)
-        
+
         # Suspicion level distribution data
         level_counts = {level.value: 0 for level in SuspicionLevel}
         for m in all_metrics:
             level_counts[m.suspicion_level.value] += 1
-        
+
         # Top 10 suspicious
-        top_suspicious = sorted(all_metrics, key=lambda m: m.bombing_score, reverse=True)[:10]
+        top_suspicious = sorted(
+            all_metrics, key=lambda m: m.bombing_score, reverse=True
+        )[:10]
         top_labels = [m.title[:25] for m in top_suspicious]
         top_values = [m.bombing_score for m in top_suspicious]
-        
+
         return f"""<script>
 // Suspicion Level Distribution Chart
 new Chart(document.getElementById('severityChart'), {{
