@@ -55,12 +55,13 @@ pytest_cache/
 
 # Virtual environments
 .env
-.venv
+.venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+.python-version
 
 # IDE settings
 .vscode/
@@ -68,6 +69,8 @@ venv.bak/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # mypy
 .mypy_cache/
@@ -80,6 +83,9 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
+# Ruff
+.ruff_cache/
+
 # =============================================================================
 # Project-specific
 # =============================================================================
@@ -89,29 +95,24 @@ config/config.yaml
 config/config.local.yaml
 *.local.yaml
 
-# Output files
-output/
-!output/.gitkeep
-
-# Cache files
-data/cache/
-!data/cache/.gitkeep
-
 # Logs
 *.log
-logs/
-output/logs/
 
-# Reports (generated)
-output/charts/
-output/reports/
+# Cache directory - ignore contents but keep structure
+data/cache/*
+!data/cache/.gitkeep
+
+# Output directory - ignore contents but keep structure  
+output/charts/*
+!output/charts/.gitkeep
+output/logs/*
+!output/logs/.gitkeep
+output/reports/*
+!output/reports/.gitkeep
 
 # Keep directory structure
 !data/.gitkeep
-!data/cache/.gitkeep
 !output/.gitkeep
-!output/charts/.gitkeep
-!output/reports/.gitkeep
 
 # OS files
 .DS_Store
@@ -121,15 +122,19 @@ output/reports/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 
 # Temporary files
 *.tmp
 *.temp
 *.bak
 *.backup
+~$*
 
 # Secrets
 *.pem
 *.key
 secrets.yaml
 secrets.json
+.env.local
+.env.*.local
