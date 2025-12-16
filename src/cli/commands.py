@@ -159,13 +159,20 @@ def get_level_emoji(level: SuspicionLevel) -> str:
 
 def print_header():
     """Print application header."""
+    version_str = f"v{__version__}"
+    # Center the title line with version
+    title = f"MAL BOMBING DETECTOR {version_str}"
+    padding = (54 - len(title)) // 2
+    title_line = " " * padding + title + " " * (54 - len(title) - padding)
+    
     console.print()
     console.print(
         "╔══════════════════════════════════════════════════════════════╗", style="cyan"
     )
     console.print(
-        "║         [bold]MAL BOMBING DETECTOR[/bold] v1.0                            ║",
+        f"║    [bold]{title_line}[/bold]    ║",
         style="cyan",
+        highlight=False,
     )
     console.print(
         "║         Vote brigading detection for anime platforms         ║", style="cyan"
@@ -194,11 +201,13 @@ def print_results(results: AnalysisResult, top_n: int = 20):
         )
         console.print(
             f"     Bombing Score: [{color}]{metrics.bombing_score:.2f}[/{color}] "
-            f"([{color}]{level}[/{color}])"
+            f"([{color}]{level}[/{color}])",
+            highlight=False,
         )
         console.print(
             f"     Ones: {metrics.ones_percentage:.2f}% | "
-            f"Tens: {metrics.tens_percentage:.2f}%"
+            f"Tens: {metrics.tens_percentage:.2f}%",
+            highlight=False,
         )
         if metrics.anomaly_flags:
             flags = ", ".join(metrics.anomaly_flags[:3])
@@ -210,14 +219,14 @@ def print_results(results: AnalysisResult, top_n: int = 20):
     console.print(f"[bold]{'=' * 80}[/bold]")
     console.print("[bold]SUMMARY[/bold]")
     console.print(f"[bold]{'=' * 80}[/bold]")
-    console.print(f"Total analyzed: {summary.total_analyzed} anime")
-    console.print(f"Average Bombing Score: {summary.score_mean:.2f}")
+    console.print(f"Total analyzed: {summary.total_analyzed} anime", highlight=False)
+    console.print(f"Average Bombing Score: {summary.score_mean:.2f}", highlight=False)
     console.print()
     console.print("Distribution by levels:")
-    console.print(f"  🔴 Critical: {summary.critical_count}")
-    console.print(f"  🟠 High: {summary.high_count}")
-    console.print(f"  🟡 Medium: {summary.medium_count}")
-    console.print(f"  🟢 Low: {summary.low_count}")
+    console.print(f"  🔴 Critical: {summary.critical_count}", highlight=False)
+    console.print(f"  🟠 High: {summary.high_count}", highlight=False)
+    console.print(f"  🟡 Medium: {summary.medium_count}", highlight=False)
+    console.print(f"  🟢 Low: {summary.low_count}", highlight=False)
 
 
 async def run_analysis(
@@ -435,25 +444,25 @@ def analyze(
 
                 exporter.export(results, filepath)
                 exported_files.append(filepath)
-                console.print(f"   ✅ {fmt.upper()}: {filepath}")
+                console.print(f"   ✅ {fmt.upper()}: {filepath}", highlight=False)
             except Exception as e:
-                console.print(f"   ❌ {fmt.upper()}: {e}")
+                console.print(f"   ❌ {fmt.upper()}: {e}", highlight=False)
                 if verbose:
                     console.print_exception()
 
         console.print()
         console.print("[green]✅ Analysis complete![/green]")
-        console.print(f"   Analyzed: {results.summary.total_analyzed} anime")
-        console.print(f"   🔴 Critical: {results.summary.critical_count}")
-        console.print(f"   🟠 High: {results.summary.high_count}")
-        console.print(f"   🟡 Medium: {results.summary.medium_count}")
-        console.print(f"   🟢 Low: {results.summary.low_count}")
+        console.print(f"   Analyzed: {results.summary.total_analyzed} anime", highlight=False)
+        console.print(f"   🔴 Critical: {results.summary.critical_count}", highlight=False)
+        console.print(f"   🟠 High: {results.summary.high_count}", highlight=False)
+        console.print(f"   🟡 Medium: {results.summary.medium_count}", highlight=False)
+        console.print(f"   🟢 Low: {results.summary.low_count}", highlight=False)
 
         if exported_files:
             console.print()
             console.print("[bold]Output files:[/bold]")
             for f in exported_files:
-                console.print(f"   📄 {f}")
+                console.print(f"   📄 {f}", highlight=False)
 
     except Exception as e:
         console.print(f"[red]❌ Error: {e}[/red]")
@@ -501,15 +510,15 @@ def single(
 
         async def main():
             async with plat:
-                console.print(f"Fetching data for anime ID {anime_id}...")
+                console.print(f"Fetching data for anime ID {anime_id}...", highlight=False)
                 stats = await plat.get_anime_stats(anime_id)
 
                 if not stats:
-                    console.print(f"[red]Anime {anime_id} not found[/red]")
+                    console.print(f"[red]Anime {anime_id} not found[/red]", highlight=False)
                     raise typer.Exit(1)
 
                 if not stats.distribution:
-                    console.print(f"[red]No distribution data for {anime_id}[/red]")
+                    console.print(f"[red]No distribution data for {anime_id}[/red]", highlight=False)
                     raise typer.Exit(1)
 
                 analyzer = BombingAnalyzer()
@@ -522,19 +531,21 @@ def single(
         # Print detailed results
         console.print()
         console.print(f"[bold]Analysis for: {anime.title}[/bold]")
-        console.print(f"MAL ID: {anime.mal_id}")
-        console.print(f"Score: {anime.score}")
-        console.print(f"Total Votes: {anime.distribution.total_votes:,}")
+        console.print(f"MAL ID: {anime.mal_id}", highlight=False)
+        console.print(f"Score: {anime.score}", highlight=False)
+        console.print(f"Total Votes: {anime.distribution.total_votes:,}", highlight=False)
         console.print()
 
         emoji = get_level_emoji(metrics.suspicion_level)
         color = get_level_color(metrics.suspicion_level)
 
         console.print(
-            f"[bold]Bombing Score:[/bold] [{color}]{metrics.bombing_score:.2f}[/{color}]"
+            f"[bold]Bombing Score:[/bold] [{color}]{metrics.bombing_score:.2f}[/{color}]",
+            highlight=False,
         )
         console.print(
-            f"[bold]Suspicion Level:[/bold] {emoji} [{color}]{metrics.suspicion_level.value.upper()}[/{color}]"
+            f"[bold]Suspicion Level:[/bold] {emoji} [{color}]{metrics.suspicion_level.value.upper()}[/{color}]",
+            highlight=False,
         )
         console.print()
 
@@ -585,9 +596,10 @@ def single(
             console.print(f"[bold]Severity:[/bold] {metrics.severity.level.value}")
             console.print(f"  {metrics.severity.description}")
             console.print(
-                f"  Estimated fake votes: {metrics.severity.estimated_fake_votes:,}"
+                f"  Estimated fake votes: {metrics.severity.estimated_fake_votes:,}",
+                highlight=False,
             )
-            console.print(f"  Rating impact: {metrics.severity.rating_impact:.3f}")
+            console.print(f"  Rating impact: {metrics.severity.rating_impact:.3f}", highlight=False)
 
     except Exception as e:
         console.print(f"[red]❌ Error: {e}[/red]")
@@ -626,7 +638,7 @@ def compare(
     print_header()
 
     anime_ids = [int(x.strip()) for x in ids.split(",")]
-    console.print(f"Comparing {len(anime_ids)} anime...")
+    console.print(f"Comparing {len(anime_ids)} anime...", highlight=False)
 
     try:
         plat = get_platform(options.platform)
@@ -674,8 +686,8 @@ def compare(
 @app.command()
 def version():
     """Show version information."""
-    console.print(f"MAL Bombing Detector v{__version__}")
-    console.print("https://github.com/VasyaChelovekov/mal-bombing-detector")
+    console.print(f"MAL Bombing Detector v{__version__}", highlight=False)
+    console.print("https://github.com/VasyaChelovekov/mal-bombing-detector", highlight=False)
 
 
 def main():
