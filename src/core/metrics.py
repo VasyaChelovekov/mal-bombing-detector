@@ -87,7 +87,7 @@ class MetricsCalculator:
         # Bimodality
         is_bimodal, bimodality = self.stats.detect_bimodality(distribution)
 
-        # Calculate composite score
+        # Calculate composite score (pass ones_pct for spike damping)
         metric_scores = self._calculate_metric_scores(
             ones_zscore,
             spike_ratio,
@@ -95,6 +95,7 @@ class MetricsCalculator:
             entropy_deficit,
             bimodality,
             is_bimodal,
+            ones_pct,
         )
 
         bombing_score = sum(metric_scores.values())
@@ -158,9 +159,27 @@ class MetricsCalculator:
         distribution: Dict[int, float],
         anime_score: float,
     ) -> float:
-        """Calculate effect size of distribution deviation."""
+        """Calculate effect size of distribution deviation.
+
+        Applies popularity discount when high tens% + low ones%
+        indicates popularity rather than bombing.
+        """
         expected = get_expected_distribution(anime_score)
-        return self.effect_calc.calculate_cohens_d(distribution, expected)
+        raw_effect = self.effect_calc.calculate_cohens_d(distribution, expected)
+
+        # Apply popularity discount if configured
+        adjustments = self.config.analysis.bombing_score_adjustments
+        pop_config = adjustments.popularity_discount
+
+        if pop_config.enabled:
+            tens_pct = distribution.get(10, 0)
+            ones_pct = distribution.get(1, 0)
+
+            # High tens + low ones = popularity, not bombing
+            if tens_pct > pop_config.tens_threshold and ones_pct < pop_config.ones_threshold:
+                return raw_effect * pop_config.discount_factor
+
+        return raw_effect
 
     def _calculate_metric_scores(
         self,
@@ -170,13 +189,42 @@ class MetricsCalculator:
         entropy_deficit: float,
         bimodality: float,
         is_bimodal: bool,
+        ones_pct: float = 0.0,
     ) -> Dict[str, float]:
-        """Calculate weighted scores for each metric."""
+        """Calculate weighted scores for each metric.
+
+        Args:
+            ones_zscore: Z-score of ones percentage.
+            spike_ratio: Ratio of ones to twos.
+            effect_size: Cohen's d effect size.
+            entropy_deficit: Entropy deficit value.
+            bimodality: Bimodality coefficient.
+            is_bimodal: Whether distribution is bimodal.
+            ones_pct: Percentage of 1-votes (for spike damping).
+
+        Returns:
+            Dictionary of weighted metric scores.
+        """
         weights = self.config.analysis.metric_weights
+        adjustments = self.config.analysis.bombing_score_adjustments
+        spike_config = adjustments.spike_damping
 
         # Normalize metrics to 0-100 scale
         ones_score = min(100, ones_zscore * 25)
-        spike_score = min(100, max(0, (spike_ratio - 1.5) * 20))
+
+        # Apply spike damping based on ones_pct
+        if spike_config.enabled:
+            if ones_pct < spike_config.min_ones_to_consider:
+                # Too few 1-votes to consider spike meaningful
+                spike_score = 0.0
+            else:
+                # Apply gradual damping weight
+                damping_weight = min(1.0, ones_pct / spike_config.min_ones_for_full_weight)
+                raw_spike_score = min(100, max(0, (spike_ratio - 1.5) * 20))
+                spike_score = raw_spike_score * damping_weight
+        else:
+            spike_score = min(100, max(0, (spike_ratio - 1.5) * 20))
+
         effect_score = min(100, effect_size * 80)
         entropy_score = min(100, entropy_deficit * 300)
         bimodality_score = bimodality * 100 if is_bimodal else bimodality * 30
@@ -252,37 +300,53 @@ class MetricsCalculator:
         """
         Classify bombing score into suspicion level.
 
-        Classification is purely based on bombing_score thresholds:
-        - CRITICAL: score >= 75
-        - HIGH: score >= 55
+        Classification is based on bombing_score thresholds with
+        minimum ones_percentage requirements to prevent false positives
+        on popular anime with many 10-votes but few 1-votes.
+
+        Thresholds:
+        - CRITICAL: score >= 75 AND ones_pct >= min_ones_for_critical
+        - HIGH: score >= 55 AND ones_pct >= min_ones_for_high
         - MEDIUM: score >= 35
         - LOW: score < 35
 
-        Note: Statistical anomalies (z-score, spike ratio) are already
-        factored into the bombing_score calculation. The anomaly_flags
-        field captures extreme cases for reporting purposes.
+        If ones_pct is below threshold, level is downgraded.
 
         Args:
             score: Composite bombing score (0-100).
-            ones_zscore: Z-score (used for anomaly flags, not classification).
-            ones_pct: Ones percentage (used for anomaly flags, not classification).
-            spike_ratio: Spike ratio (used for anomaly flags, not classification).
+            ones_zscore: Z-score (informational).
+            ones_pct: Ones percentage (used for level enforcement).
+            spike_ratio: Spike ratio (informational).
 
         Returns:
-            Suspicion level classification based purely on score.
+            Suspicion level classification.
         """
         thresholds = self.config.analysis.suspicion_thresholds
+        adjustments = self.config.analysis.bombing_score_adjustments
 
-        # Pure threshold-based classification (Fix C)
-        # This ensures suspicion_level always matches bombing_score ranges
-        if score >= thresholds.critical:  # >= 75
-            return SuspicionLevel.CRITICAL
-        elif score >= thresholds.high:  # >= 55
-            return SuspicionLevel.HIGH
-        elif score >= thresholds.medium:  # >= 35
-            return SuspicionLevel.MEDIUM
+        # Determine base level from score thresholds
+        if score >= thresholds.critical:
+            base_level = SuspicionLevel.CRITICAL
+        elif score >= thresholds.high:
+            base_level = SuspicionLevel.HIGH
+        elif score >= thresholds.medium:
+            base_level = SuspicionLevel.MEDIUM
         else:
             return SuspicionLevel.LOW
+
+        # Enforce minimum ones_pct for high suspicion levels
+        # This prevents false positives on popular anime with many 10s but few 1s
+        if base_level == SuspicionLevel.CRITICAL:
+            if ones_pct < adjustments.min_ones_for_critical:
+                # Not enough 1-votes for CRITICAL, downgrade to HIGH
+                base_level = SuspicionLevel.HIGH
+
+        if base_level == SuspicionLevel.HIGH:
+            if ones_pct < adjustments.min_ones_for_high:
+                # Not enough 1-votes for HIGH, downgrade to MEDIUM
+                base_level = SuspicionLevel.MEDIUM
+
+        return base_level
 
     def _calculate_severity(
         self,

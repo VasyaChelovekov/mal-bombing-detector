@@ -32,20 +32,28 @@ class TestSuspicionClassification:
         return MetricsCalculator()
 
     @pytest.mark.parametrize(
-        "score,expected",
+        "score,ones_pct,expected",
         [
-            (0.0, SuspicionLevel.LOW),
-            (24.99, SuspicionLevel.LOW),
-            (35.0, SuspicionLevel.MEDIUM),
-            (54.99, SuspicionLevel.MEDIUM),
-            (55.0, SuspicionLevel.HIGH),
-            (74.99, SuspicionLevel.HIGH),
-            (75.0, SuspicionLevel.CRITICAL),
-            (100.0, SuspicionLevel.CRITICAL),
+            # LOW level - no ones_pct requirement
+            (0.0, 0.0, SuspicionLevel.LOW),
+            (24.99, 0.0, SuspicionLevel.LOW),
+            # MEDIUM level - no ones_pct requirement
+            (35.0, 0.0, SuspicionLevel.MEDIUM),
+            (54.99, 0.0, SuspicionLevel.MEDIUM),
+            # HIGH level - requires ones_pct >= 1.5%
+            (55.0, 1.5, SuspicionLevel.HIGH),
+            (74.99, 2.0, SuspicionLevel.HIGH),
+            # CRITICAL level - requires ones_pct >= 2.0%
+            (75.0, 2.0, SuspicionLevel.CRITICAL),
+            (100.0, 3.0, SuspicionLevel.CRITICAL),
+            # HIGH/CRITICAL without sufficient ones_pct -> downgrade
+            (55.0, 0.5, SuspicionLevel.MEDIUM),  # HIGH -> MEDIUM
+            (75.0, 1.0, SuspicionLevel.MEDIUM),  # CRITICAL -> HIGH -> MEDIUM
+            (80.0, 1.8, SuspicionLevel.HIGH),    # CRITICAL -> HIGH (ones < 2.0)
         ],
     )
-    def test_classification_is_score_based(self, calculator, score, expected):
-        assert calculator._classify_level(score) == expected
+    def test_classification_is_score_based(self, calculator, score, ones_pct, expected):
+        assert calculator._classify_level(score, ones_pct=ones_pct) == expected
 
 
 class TestSummaryReconciliation:

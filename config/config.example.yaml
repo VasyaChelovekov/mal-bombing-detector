@@ -129,6 +129,29 @@ analysis:
     old_factor: 0.95
     default: 1.0
 
+  # Bombing score adjustments to reduce false positives
+  # These settings prevent high suspicion levels when ones% is too low
+  bombing_score_adjustments:
+    # Minimum ones% required for each suspicion level
+    # Prevents CRITICAL/HIGH on popular anime with many 10s but few 1s
+    min_ones_for_critical: 2.0
+    min_ones_for_high: 1.5
+
+    # Popularity discount: reduces effect_size when high tens% + low ones%
+    # This prevents flagging popular anime as bombing suspects
+    popularity_discount:
+      enabled: true
+      tens_threshold: 45.0      # Min tens% to trigger discount
+      ones_threshold: 1.5       # Max ones% to trigger discount
+      discount_factor: 0.5      # Multiply effect_size by this
+
+    # Spike ratio damping: reduces spike impact when ones% is very low
+    # Prevents high spike_ratio from low absolute numbers
+    spike_damping:
+      enabled: true
+      min_ones_for_full_weight: 2.0  # Full spike weight at this ones%
+      min_ones_to_consider: 0.5      # Below this, spike contribution = 0
+
 # Visualization settings
 visualization:
   enabled: true

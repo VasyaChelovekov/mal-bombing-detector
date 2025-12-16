@@ -151,6 +151,91 @@ score = min(1.0, effect_size / max_effect_size)
 | **Minimal** | 0.20-0.34 | Within expected variation |
 | **None** | < 0.20 | No evidence of manipulation |
 
+## Bombing Score Adjustments (v1.2.0+)
+
+To reduce false positives—particularly on highly-rated, popular anime—the system applies several adjustments before final classification.
+
+### 1. Minimum Ones Percentage Thresholds
+
+High severity levels now require a minimum percentage of 1-votes:
+
+| Level | Score Threshold | Min `ones_percent` | Effect if Below Threshold |
+|-------|-----------------|-------------------|---------------------------|
+| **Critical** | ≥ 0.75 | ≥ 2.0% | Downgraded to High or Medium |
+| **High** | ≥ 0.55 | ≥ 1.5% | Downgraded to Medium |
+
+**Rationale**: Real bombing campaigns generate a substantial spike in 1-votes. Anime with high composite scores but low 1-vote percentages are likely popular titles with concentrated 10-votes, not bombing victims.
+
+**Example**: Frieren (score 0.68, ones_percent 0.99%) → Downgraded from HIGH to MEDIUM.
+
+### 2. Popularity Discount
+
+When an anime exhibits signs of being popular rather than bombed, the effect size is discounted:
+
+**Trigger Conditions**:
+- `tens_percent > 45.0%` (high concentration of 10-votes)
+- `ones_percent < 1.5%` (low 1-vote count)
+
+**Effect**: `effect_size *= 0.5`
+
+**Rationale**: Popular anime often have unusual distributions due to genuine fan enthusiasm, not manipulation. The discount prevents the effect size metric from inflating the score.
+
+**Configuration**:
+```yaml
+bombing_score_adjustments:
+  popularity_discount:
+    enabled: true
+    tens_threshold: 45.0    # % of 10-votes to trigger
+    ones_threshold: 1.5     # max % of 1-votes
+    discount_factor: 0.5    # multiplier applied to effect_size
+```
+
+### 3. Spike Damping
+
+The spike ratio contribution is damped when 1-vote percentages are low:
+
+| `ones_percent` | Damping Factor | Effect |
+|----------------|----------------|--------|
+| ≥ 2.0% | 1.0 | Full weight (no damping) |
+| 0.5% – 2.0% | Linear 0.25–1.0 | Proportional reduction |
+| < 0.5% | 0.0 | Spike ignored entirely |
+
+**Calculation**:
+```python
+if ones_pct >= min_ones_for_full_weight:
+    damping = 1.0
+elif ones_pct < min_ones_to_consider:
+    damping = 0.0
+else:
+    damping = 0.25 + 0.75 * (ones_pct - min_ones_to_consider) / (min_ones_for_full_weight - min_ones_to_consider)
+
+spike_score *= damping
+```
+
+**Rationale**: A spike ratio of 5.0 means something very different when ones_percent is 0.5% vs 5%. Small absolute spikes shouldn't disproportionately affect the composite score.
+
+**Configuration**:
+```yaml
+bombing_score_adjustments:
+  spike_damping:
+    enabled: true
+    min_ones_for_full_weight: 2.0   # ones_pct for full spike weight
+    min_ones_to_consider: 0.5       # below this, spike is ignored
+```
+
+### Combined Effect
+
+These adjustments work together to create a more objective scoring system:
+
+1. **Popularity Discount** reduces the effect size for popular anime
+2. **Spike Damping** reduces the spike contribution when 1-votes are minimal
+3. **Min Ones Thresholds** prevent high severity labels without sufficient evidence
+
+This significantly reduces false positives on anime like:
+- Frieren (65% tens, 0.99% ones) → Was HIGH, now MEDIUM
+- Steins;Gate (58% tens, 0.68% ones) → Was HIGH, now LOW
+- FMA: Brotherhood (53% tens, 0.53% ones) → Was CRITICAL, now MEDIUM
+
 ## Reliability Indicators
 
 ### Is Reliable Flag

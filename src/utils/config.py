@@ -162,6 +162,54 @@ class FormatAdjustmentsConfig:
 
 
 @dataclass
+class PopularityDiscountConfig:
+    """Configuration for popularity-based score adjustments.
+
+    When an anime has very high tens percentage but low ones percentage,
+    it indicates popularity rather than bombing. This config controls
+    the discount applied to effect_size in such cases.
+    """
+
+    enabled: bool = True
+    tens_threshold: float = 45.0  # Min tens% to trigger discount
+    ones_threshold: float = 1.5  # Max ones% to trigger discount
+    discount_factor: float = 0.5  # Multiply effect_size by this
+
+
+@dataclass
+class SpikeDampingConfig:
+    """Configuration for spike ratio damping.
+
+    Spike ratio can be misleadingly high when ones% is very low.
+    This config applies damping to reduce false positives.
+    """
+
+    enabled: bool = True
+    min_ones_for_full_weight: float = 2.0  # Full spike weight at this ones%
+    min_ones_to_consider: float = 0.5  # Below this, spike = 0
+
+
+@dataclass
+class BombingScoreAdjustmentsConfig:
+    """Configuration for bombing score adjustments to reduce false positives.
+
+    These adjustments ensure that high suspicion levels require
+    a minimum percentage of 1-votes, preventing false positives
+    on popular anime with many 10-votes but few 1-votes.
+    """
+
+    # Minimum ones% required for each suspicion level
+    min_ones_for_critical: float = 2.0
+    min_ones_for_high: float = 1.5
+
+    # Sub-configs
+    popularity_discount: PopularityDiscountConfig = field(
+        default_factory=PopularityDiscountConfig
+    )
+    spike_damping: SpikeDampingConfig = field(default_factory=SpikeDampingConfig)
+
+
+@dataclass
 class AnalysisConfig:
     """Configuration for analysis parameters."""
 
@@ -177,6 +225,9 @@ class AnalysisConfig:
     )
     format_adjustments: FormatAdjustmentsConfig = field(
         default_factory=FormatAdjustmentsConfig
+    )
+    bombing_score_adjustments: BombingScoreAdjustmentsConfig = field(
+        default_factory=BombingScoreAdjustmentsConfig
     )
 
     age_old_threshold_years: int = 15

@@ -283,16 +283,47 @@ Select formats via `--format` (comma-separated):
 | Bimodality | 15% | Detects dual peaks at 10s and 1s |
 | Entropy Deficit | 10% | Measures rating distribution uniformity |
 
+### Bombing Score Adjustments (v1.2.0+)
+
+To reduce false positives on popular anime with naturally high 10-vote counts, the detector applies several adjustments:
+
+#### Minimum Ones Thresholds
+
+Severity levels now require a minimum percentage of 1-votes:
+
+| Level | Min Score | Min Ones % | Rationale |
+|-------|-----------|------------|-----------|
+| 🔴 CRITICAL | 75 | ≥ 2.0% | Real bombing campaigns produce noticeable 1-vote spikes |
+| 🟠 HIGH | 55 | ≥ 1.5% | Anime below this threshold are likely popular, not bombed |
+
+Anime with high scores but insufficient 1-vote percentages are downgraded to MEDIUM or lower.
+
+#### Popularity Discount
+
+When an anime has **tens_percent > 45%** and **ones_percent < 1.5%**, the effect size is multiplied by `0.5`. This prevents popular anime (e.g., Frieren, Steins;Gate) from being flagged due to high 10-vote concentrations.
+
+#### Spike Damping
+
+For anime with low 1-vote percentages, the spike ratio contribution is damped:
+
+| Ones % | Damping Factor |
+|--------|----------------|
+| ≥ 2.0% | 1.0 (full weight) |
+| 0.5–2.0% | Linear scale (0.25 → 1.0) |
+| < 0.5% | 0.0 (ignored) |
+
+This ensures that small absolute spikes in 1-votes don't disproportionately affect the score.
+
 ### Severity Levels
 
-Levels are determined **solely by the bombing score** (0–100):
+Levels are determined by the bombing score (0–100) **and ones_percent thresholds**:
 
-| Level | Score Range | Description |
-|-------|-------------|-------------|
-| 🔴 CRITICAL | 75–100 | Strong evidence of coordinated bombing |
-| 🟠 HIGH | 55–74 | Likely bombing detected |
-| 🟡 MEDIUM | 35–54 | Possible bombing indicators |
-| 🟢 LOW | 0–34 | Normal rating distribution |
+| Level | Score Range | Ones % Requirement | Description |
+|-------|-------------|-------------------|-------------|
+| 🔴 CRITICAL | 75–100 | ≥ 2.0% | Strong evidence of coordinated bombing |
+| 🟠 HIGH | 55–74 | ≥ 1.5% | Likely bombing detected |
+| 🟡 MEDIUM | 35–54 | — | Possible bombing indicators |
+| 🟢 LOW | 0–34 | — | Normal rating distribution |
 
 Anomaly flags (e.g., `extreme_ones_spike`, `high_zscore`) are **informational** and do not override the level.
 
