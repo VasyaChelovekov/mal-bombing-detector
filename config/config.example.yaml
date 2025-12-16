@@ -27,7 +27,7 @@ scraping:
   # Adaptive delay settings (auto-adjusts based on server response)
   adaptive_delay:
     enabled: true           # Use adaptive delay instead of fixed
-    min_delay: 0.5          # Minimum delay between requests (seconds)
+    min_delay: 1.5          # Minimum delay between requests (seconds) - increased to avoid MAL rate limiting
     max_delay: 5.0          # Maximum delay after rate limiting (seconds)
     success_threshold: 5    # Decrease delay after N consecutive successes
     decrease_factor: 0.8    # Multiply delay by this on success streak

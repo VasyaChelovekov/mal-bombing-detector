@@ -382,7 +382,12 @@ class MyAnimeListPlatform(AnimePlatform):
                 stats_url = f"{self.BASE_URL}/anime/{anime_id}/{url_slug}/stats"
 
             html = await self._make_request(stats_url)
-            anime_data = self._parse_stats_page(html, anime_id)
+            
+            # Define soft block handler to trigger rate limit backoff
+            def on_soft_block():
+                self._on_request_error(is_rate_limit=True)
+            
+            anime_data = self._parse_stats_page(html, anime_id, on_soft_block)
 
             # Cache the result
             if anime_data and self._cache:
@@ -396,9 +401,35 @@ class MyAnimeListPlatform(AnimePlatform):
             logger.error(f"Error fetching stats for {anime_id}: {e}")
             raise
 
-    def _parse_stats_page(self, html: str, anime_id: int) -> Optional[AnimeData]:
-        """Parse the anime stats page."""
+    def _parse_stats_page(
+        self, html: str, anime_id: int, on_soft_block: callable = None
+    ) -> Optional[AnimeData]:
+        """Parse the anime stats page.
+
+        Args:
+            html: Raw HTML content
+            anime_id: MAL anime ID
+            on_soft_block: Callback to invoke when page appears blocked
+                           (200 OK but missing expected content)
+
+        Returns:
+            AnimeData if successful, None if blocked or missing data
+        """
         soup = BeautifulSoup(html, "lxml")
+
+        # Detect soft block / CAPTCHA pages
+        # MAL returns 200 OK but with different content when rate limited
+        page_title = soup.find("title")
+        if page_title:
+            title_text = page_title.text.lower()
+            if any(
+                blocked in title_text
+                for blocked in ["captcha", "403", "access denied", "please wait"]
+            ):
+                logger.warning(f"Anime {anime_id}: Soft block detected (title: {page_title.text})")
+                if on_soft_block:
+                    on_soft_block()
+                return None
 
         # Get title
         title_elem = soup.select_one("h1.title-name")
@@ -462,7 +493,14 @@ class MyAnimeListPlatform(AnimePlatform):
 
         if not vote_counts:
             if not score_stats:
-                logger.debug(f"Anime {anime_id}: No score-stats table found on page")
+                # No score-stats table - might be soft block or page issue
+                logger.warning(
+                    f"Anime {anime_id}: No score-stats table found on page. "
+                    f"Title element: {'found' if title_elem else 'missing'}"
+                )
+                # Treat missing stats as soft block if title element also missing
+                if not title_elem and on_soft_block:
+                    on_soft_block()
             else:
                 logger.debug(
                     f"Anime {anime_id}: score-stats table found but no votes parsed"

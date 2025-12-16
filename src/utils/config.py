@@ -30,7 +30,7 @@ class AdaptiveDelayConfig:
     """Configuration for adaptive rate limiting."""
 
     enabled: bool = True
-    min_delay: float = 0.5
+    min_delay: float = 1.5  # Increased from 0.5 to avoid MAL rate limiting
     max_delay: float = 5.0
     success_threshold: int = 5
     decrease_factor: float = 0.8
